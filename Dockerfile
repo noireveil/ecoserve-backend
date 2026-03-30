@@ -3,6 +3,6 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o select-api cmd/api/main.go
+RUN go build -o ecoserve-api cmd/api/main.go
 EXPOSE 3000
-CMD ["./select-api"]
+CMD ["./ecoserve-api"]

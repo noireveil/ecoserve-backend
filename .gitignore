@@ -1,0 +1,53 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/vendor/
+
+# testing
+*.test
+*.out
+coverage.txt
+profile.out
+
+# build
+/bin/
+ecoserve-api
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# misc
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.cab
+*.msi
+*.msm
+*.msp
+$RECYCLE.BIN/
+*.pem
+
+# ide / editor
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
+
+# golang
+go.work
+go.work.sum

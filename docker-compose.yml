@@ -2,13 +2,17 @@ version: '3.8'
 services:
   api:
     build: .
+    restart: always
     ports: [ "3000:3000" ]
     environment:
+      - APP_PORT=3000
       - DB_HOST=db
       - DB_USER=postgres
-      - DB_PASSWORD=select_secret
-      - DB_NAME=select_db
+      - DB_PASSWORD=ecoserve_secret
+      - DB_NAME=ecoserve_db
       - DB_PORT=5432
+      - DB_SSLMODE=disable
+      - DB_TIMEZONE=Asia/Jakarta
     depends_on:
       db:
         condition: service_healthy
@@ -16,8 +20,8 @@ services:
     image: postgis/postgis:15-3.3
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=select_secret
-      - POSTGRES_DB=select_db
+      - POSTGRES_PASSWORD=ecoserve_secret
+      - POSTGRES_DB=ecoserve_db
     ports: [ "5432:5432" ]
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
