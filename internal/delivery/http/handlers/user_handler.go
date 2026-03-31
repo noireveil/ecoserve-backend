@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/noireveil/ecoserve-backend/internal/usecase"
+	"github.com/noireveil/ecoserve-backend/pkg/utils"
 )
 
 type UserHandler struct {
@@ -31,8 +32,14 @@ func (h *UserHandler) LoginOrRegister(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	token, err := utils.GenerateToken(user.ID, user.Role)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal menghasilkan token otentikasi"})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Autentikasi berhasil",
+		"token":   token,
 		"data":    user,
 	})
 }

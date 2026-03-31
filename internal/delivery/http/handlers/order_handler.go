@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/noireveil/ecoserve-backend/internal/delivery/http/middleware"
 	"github.com/noireveil/ecoserve-backend/internal/domain"
 	"github.com/noireveil/ecoserve-backend/internal/usecase"
 )
@@ -14,8 +15,9 @@ func NewOrderHandler(app *fiber.App, usecase usecase.OrderUsecase) {
 	handler := &OrderHandler{orderUsecase: usecase}
 
 	api := app.Group("/api/orders")
-	api.Post("/", handler.Create)
-	api.Put("/:id/complete", handler.Complete)
+
+	api.Post("/", middleware.Protected(), handler.Create)
+	api.Put("/:id/complete", middleware.Protected(), handler.Complete)
 }
 
 func (h *OrderHandler) Create(c *fiber.Ctx) error {
