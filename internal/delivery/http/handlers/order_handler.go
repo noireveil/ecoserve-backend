@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/noireveil/ecoserve-backend/internal/delivery/http/middleware"
 	"github.com/noireveil/ecoserve-backend/internal/domain"
 	"github.com/noireveil/ecoserve-backend/internal/usecase"
@@ -15,15 +16,34 @@ func NewOrderHandler(app *fiber.App, usecase usecase.OrderUsecase) {
 	handler := &OrderHandler{orderUsecase: usecase}
 
 	api := app.Group("/api/orders")
-
 	api.Post("/", middleware.Protected(), handler.Create)
 	api.Put("/:id/complete", middleware.Protected(), handler.Complete)
 }
 
 func (h *OrderHandler) Create(c *fiber.Ctx) error {
-	var order domain.Order
-	if err := c.BodyParser(&order); err != nil {
+	var req struct {
+		DeviceCategory     string `json:"device_category"`
+		ProblemDescription string `json:"problem_description"`
+	}
+
+	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format JSON tidak valid"})
+	}
+
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User ID tidak ditemukan pada token"})
+	}
+
+	customerID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format User ID tidak valid"})
+	}
+
+	order := domain.Order{
+		CustomerID:         customerID,
+		DeviceCategory:     req.DeviceCategory,
+		ProblemDescription: req.ProblemDescription,
 	}
 
 	if err := h.orderUsecase.CreateOrder(&order); err != nil {
