@@ -46,7 +46,10 @@ func main() {
 	handlers.NewTechnicianHandler(app, techUsecase)
 	handlers.NewOrderHandler(app, orderUsecase)
 
-	port := os.Getenv("APP_PORT")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = os.Getenv("APP_PORT")
+	}
 	if port == "" {
 		port = "3000"
 	}

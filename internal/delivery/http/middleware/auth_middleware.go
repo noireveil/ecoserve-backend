@@ -40,7 +40,6 @@ func Protected() fiber.Handler {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Gagal memproses klaim token"})
 		}
 
-		// Menyimpan data dari token ke dalam context Fiber untuk digunakan oleh Handler
 		c.Locals("user_id", claims["user_id"])
 		c.Locals("role", claims["role"])
 

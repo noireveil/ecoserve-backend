@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -11,7 +12,7 @@ import (
 func GenerateToken(userID interface{}, role string) (string, error) {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "rahasia_default_jika_env_kosong" // Fallback keamanan
+		return "", errors.New("JWT_SECRET tidak terdefinisi pada variabel lingkungan")
 	}
 
 	claims := jwt.MapClaims{
