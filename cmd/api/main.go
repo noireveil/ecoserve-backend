@@ -45,6 +45,7 @@ func main() {
 	handlers.NewUserHandler(app, userUsecase)
 	handlers.NewTechnicianHandler(app, techUsecase)
 	handlers.NewOrderHandler(app, orderUsecase)
+	handlers.NewChatbotHandler(app)
 
 	port := os.Getenv("PORT")
 	if port == "" {

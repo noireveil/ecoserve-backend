@@ -23,18 +23,20 @@ func (u *orderUsecase) CreateOrder(order *domain.Order) error {
 }
 
 func (u *orderUsecase) CompleteOrder(orderID string, deviceCategory string) error {
-	var eWasteSaved float64
+	eWasteSaved := u.calculateImpactMetrics(deviceCategory)
+	return u.orderRepo.UpdateStatus(orderID, "COMPLETED", eWasteSaved)
+}
 
-	switch deviceCategory {
-	case "Pendingin & Komersial":
-		eWasteSaved = 45.0
-	case "Home Appliances":
-		eWasteSaved = 25.0
-	case "IT & Gadget":
-		eWasteSaved = 2.5
-	default:
-		eWasteSaved = 5.0
+func (u *orderUsecase) calculateImpactMetrics(category string) float64 {
+	metricsMap := map[string]float64{
+		"Pendingin & Komersial": 45.50,
+		"Home Appliances":       22.00,
+		"IT & Gadget":           1.25,
 	}
 
-	return u.orderRepo.UpdateStatus(orderID, "COMPLETED", eWasteSaved)
+	if weight, exists := metricsMap[category]; exists {
+		return weight
+	}
+
+	return 2.50
 }
