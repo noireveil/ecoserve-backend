@@ -25,7 +25,12 @@ func main() {
 	app := fiber.New(fiber.Config{
 		AppName: "EcoServe API v1.0",
 	})
-	app.Use(cors.New())
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:5173, http://localhost:3000",
+		AllowCredentials: true,
+		AllowHeaders:     "Origin, Content-Type, Accept",
+	}))
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{

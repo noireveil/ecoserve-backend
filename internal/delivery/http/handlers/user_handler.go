@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/noireveil/ecoserve-backend/internal/usecase"
 	"github.com/noireveil/ecoserve-backend/pkg/utils"
@@ -55,9 +57,17 @@ func (h *UserHandler) VerifyOTP(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal menghasilkan token"})
 	}
 
+	cookie := new(fiber.Cookie)
+	cookie.Name = "jwt"
+	cookie.Value = token
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	cookie.HTTPOnly = true
+	cookie.SameSite = "Lax"
+
+	c.Cookie(cookie)
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Autentikasi berhasil",
-		"token":   token,
 		"data":    user,
 	})
 }
