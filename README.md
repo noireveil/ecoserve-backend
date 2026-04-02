@@ -7,7 +7,7 @@ EcoServe adalah platform yang dirancang untuk mempermudah akses servis elektroni
 * **AI Triage System:** Integrasi **Gemini 2.5 Flash** untuk mendiagnosis kerusakan perangkat secara otomatis berdasarkan input pengguna, lengkap dengan mitigasi bahaya dan estimasi biaya.
 * **Geospatial Search:** Menggunakan **PostGIS** untuk pencarian teknisi terdekat berdasarkan radius koordinat (Longitude/Latitude).
 * **Automated E-Waste Tracker:** Kalkulasi otomatis penghematan limbah elektronik dalam satuan kilogram (Kg) setiap kali sebuah servis selesai dilakukan.
-* **Secure Authentication:** Sistem login tanpa kata sandi menggunakan **Email OTP** (SMTP) dan otorisasi berbasis **JWT**.
+* **Secure Authentication:** Sistem login tanpa kata sandi menggunakan **Email OTP** (SMTP) dan otorisasi berbasis **JWT** yang diamankan secara presisi menggunakan **HttpOnly Cookie**.
 
 ## Tech Stack
 
@@ -21,7 +21,7 @@ EcoServe adalah platform yang dirancang untuk mempermudah akses servis elektroni
 
 ## Arsitektur
 
-Proyek ini menerapkan **Clean Architecture** (Modular Layout) untuk memisahkan logika bisnis dari detail infrastruktur:
+Proyek ini menerapkan pemisahan struktur modular untuk memisahkan logika bisnis dari detail infrastruktur:
 
 * `cmd/`: Entry point aplikasi.
 * `internal/domain/`: Definisi struct dan model database.
@@ -34,13 +34,13 @@ Proyek ini menerapkan **Clean Architecture** (Modular Layout) untuk memisahkan l
 
 1.  Clone repositori:
     ```bash
-    git clone https://github.com/noireveil/ecoserve-backend.git
+    git clone [https://github.com/noireveil/ecoserve-backend.git](https://github.com/noireveil/ecoserve-backend.git)
     cd ecoserve-backend
     ```
 2.  Konfigurasi environment:
     ```bash
     cp .env.example .env
-    # Isi variabel seperti DB_URL, SMTP_PASS, dan GEMINI_API_KEY
+    # Isi variabel seperti DB_HOST, SMTP_PASS, dan GEMINI_API_KEY
     ```
 3.  Jalankan dengan Docker:
     ```bash
