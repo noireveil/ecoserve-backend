@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -33,6 +34,16 @@ func ConnectDB() {
 	if err != nil {
 		log.Fatal("Failed to connect to database: \n", err)
 	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal("Failed to initialize connection pool: \n", err)
+	}
+
+	sqlDB.SetConnMaxIdleTime(3 * time.Minute)
+	sqlDB.SetConnMaxLifetime(10 * time.Minute)
+	sqlDB.SetMaxIdleConns(5)
+	sqlDB.SetMaxOpenConns(50)
 
 	db.Exec("CREATE EXTENSION IF NOT EXISTS postgis;")
 
