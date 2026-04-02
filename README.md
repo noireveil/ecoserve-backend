@@ -1,46 +1,49 @@
-# EcoServe Backend API
+# EcoServe Backend
 
-Layanan backend untuk platform EcoServe. API ini dirancang untuk melayani aplikasi klien (PWA) dalam menghubungkan masyarakat dengan teknisi elektronik terdekat guna mendukung ekonomi sirkular dan pengurangan limbah elektronik (E-Waste).
+EcoServe adalah platform yang dirancang untuk mempermudah akses servis elektronik guna memperpanjang usia perangkat dan menekan pertumbuhan limbah elektronik (*e-waste*). API ini dibangun menggunakan **Go** dengan fokus pada performa, skalabilitas, dan akurasi data geospasial.
 
-## Base URL (Production)
-API telah diluncurkan dan dapat diakses secara publik melalui:
-`https://ecoserve-api.onrender.com`
+## Overview Fitur
+
+* **AI Triage System:** Integrasi **Gemini 2.5 Flash** untuk mendiagnosis kerusakan perangkat secara otomatis berdasarkan input pengguna, lengkap dengan mitigasi bahaya dan estimasi biaya.
+* **Geospatial Search:** Menggunakan **PostGIS** untuk pencarian teknisi terdekat berdasarkan radius koordinat (Longitude/Latitude).
+* **Automated E-Waste Tracker:** Kalkulasi otomatis penghematan limbah elektronik dalam satuan kilogram (Kg) setiap kali sebuah servis selesai dilakukan.
+* **Secure Authentication:** Sistem login tanpa kata sandi menggunakan **Email OTP** (SMTP) dan otorisasi berbasis **JWT**.
 
 ## Tech Stack
-- **Language**: Go (Golang) 1.25
-- **Framework**: Fiber v2
-- **Database**: PostgreSQL (Supabase) dengan ekstensi PostGIS (untuk kueri spasial radius)
-- **ORM**: GORM
-- **Infrastruktur**: Docker & Docker Compose
-- **Deployment**: Render (Web Service)
 
-## Struktur Proyek
-Aplikasi ini menggunakan pendekatan arsitektur modular (*Standard Go Layout*):
-- `internal/domain`: Entitas inti dan representasi tabel database.
-- `internal/repository`: Lapisan abstraksi untuk interaksi langsung dengan database.
-- `internal/usecase`: Tempat berkumpulnya logika bisnis (seperti kalkulasi reduksi E-Waste).
-- `internal/delivery`: Menangani *routing* dan HTTP *request/response* (termasuk *Middleware* otentikasi).
+* **Language:** Go (Golang) 1.25
+* **Web Framework:** Fiber v2
+* **Database:** PostgreSQL (Supabase) + PostGIS Extension
+* **ORM:** GORM
+* **AI Engine:** Google Gemini 2.5 Flash
+* **Containerization:** Docker & Docker Compose
+* **Deployment:** Render
 
-## Cara Menjalankan Aplikasi (Local Development)
+## Arsitektur
 
-1. Pastikan Docker dan Git sudah terinstal di sistem.
-2. Lakukan *clone* repositori:
-   ```bash
-   git clone https://github.com/noireveil/ecoserve-backend.git
-   cd ecoserve-backend
-   ```
-3. Salin berkas *environment*:
-   ```bash
-   cp .env.example .env
-   ```
-4. Jalankan infrastruktur melalui Docker Compose:
-   ```bash
-   docker compose up -d --build
-   ```
-5. API lokal akan berjalan di `http://localhost:3000`.
+Proyek ini menerapkan **Clean Architecture** (Modular Layout) untuk memisahkan logika bisnis dari detail infrastruktur:
 
-## Status Pengembangan Terkini
-- Struktur inti basis data dan *routing* dasar telah selesai.
-- Integrasi otentikasi berbasis OTP surel (SMTP) telah beroperasi.
-- Pengamanan *endpoint* privat menggunakan otorisasi token JWT.
-- Peluncuran infrastruktur awan terhubung secara berkelanjutan (*Continuous Deployment*) ke platform Render dan Supabase.
+* `cmd/`: Entry point aplikasi.
+* `internal/domain/`: Definisi struct dan model database.
+* `internal/usecase/`: Logika bisnis (E-waste calculation, AI prompt engineering, dll).
+* `internal/repository/`: Interaksi data (SQL Query, GORM).
+* `internal/delivery/`: HTTP Handlers dan routing.
+* `pkg/`: Utility/Helper (JWT, Mailer, Logger).
+
+## Setup Lokal
+
+1.  Clone repositori:
+    ```bash
+    git clone https://github.com/noireveil/ecoserve-backend.git
+    cd ecoserve-backend
+    ```
+2.  Konfigurasi environment:
+    ```bash
+    cp .env.example .env
+    # Isi variabel seperti DB_URL, SMTP_PASS, dan GEMINI_API_KEY
+    ```
+3.  Jalankan dengan Docker:
+    ```bash
+    docker compose up -d --build
+    ```
+4.  Akses API melalui `http://localhost:3000`.
