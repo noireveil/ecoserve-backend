@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/noireveil/ecoserve-backend/internal/delivery/http/middleware"
 	"github.com/noireveil/ecoserve-backend/internal/usecase"
 	"github.com/noireveil/ecoserve-backend/pkg/utils"
 )
@@ -18,6 +19,8 @@ func NewUserHandler(app *fiber.App, usecase usecase.UserUsecase) {
 	api := app.Group("/api/users")
 	api.Post("/auth/request", handler.RequestOTP)
 	api.Post("/auth/verify", handler.VerifyOTP)
+
+	api.Get("/me", middleware.Protected(), handler.GetProfile)
 }
 
 func (h *UserHandler) RequestOTP(c *fiber.Ctx) error {
@@ -69,5 +72,21 @@ func (h *UserHandler) VerifyOTP(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Autentikasi berhasil",
 		"data":    user,
+	})
+}
+
+func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok || userIDStr == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Akses ditolak: Sesi tidak valid"})
+	}
+
+	user, err := h.userUsecase.GetUserByID(userIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Pengguna tidak ditemukan"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data": user,
 	})
 }

@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	Create(user *domain.User) error
 	FindByEmail(email string) (*domain.User, error)
+	FindByID(id string) (*domain.User, error)
 	UpdateOTP(email, code string, expiresAt time.Time) error
 }
 
@@ -28,6 +29,12 @@ func (r *userRepository) Create(user *domain.User) error {
 func (r *userRepository) FindByEmail(email string) (*domain.User, error) {
 	var user domain.User
 	err := r.db.Where("email = ?", email).First(&user).Error
+	return &user, err
+}
+
+func (r *userRepository) FindByID(id string) (*domain.User, error) {
+	var user domain.User
+	err := r.db.Where("id = ?", id).First(&user).Error
 	return &user, err
 }
 

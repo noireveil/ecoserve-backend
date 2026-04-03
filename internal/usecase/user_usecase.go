@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/noireveil/ecoserve-backend/internal/domain"
@@ -14,6 +15,7 @@ import (
 type UserUsecase interface {
 	RequestOTP(fullName, email string) error
 	VerifyOTP(email, code string) (*domain.User, error)
+	GetUserByID(id string) (*domain.User, error)
 }
 
 type userUsecase struct {
@@ -66,7 +68,9 @@ func (u *userUsecase) VerifyOTP(email, code string) (*domain.User, error) {
 		return nil, errors.New("pengguna tidak ditemukan")
 	}
 
-	if user.OTPCode != code {
+	cleanCode := strings.TrimSpace(code)
+
+	if user.OTPCode != cleanCode {
 		return nil, errors.New("kode OTP tidak valid")
 	}
 
@@ -77,4 +81,8 @@ func (u *userUsecase) VerifyOTP(email, code string) (*domain.User, error) {
 	u.userRepo.UpdateOTP(email, "", time.Now())
 
 	return user, nil
+}
+
+func (u *userUsecase) GetUserByID(id string) (*domain.User, error) {
+	return u.userRepo.FindByID(id)
 }
