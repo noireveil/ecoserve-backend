@@ -65,7 +65,8 @@ func (h *UserHandler) VerifyOTP(c *fiber.Ctx) error {
 	cookie.Value = token
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	cookie.HTTPOnly = true
-	cookie.SameSite = "Lax"
+	cookie.SameSite = "None"
+	cookie.Secure = true
 
 	c.Cookie(cookie)
 
