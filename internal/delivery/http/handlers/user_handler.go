@@ -13,6 +13,16 @@ type UserHandler struct {
 	userUsecase usecase.UserUsecase
 }
 
+type RequestOTPPayload struct {
+	FullName string `json:"full_name" example:"Muhammad Yasyfi"`
+	Email    string `json:"email" example:"yasyfi7@gmail.com"`
+}
+
+type VerifyOTPPayload struct {
+	Email string `json:"email" example:"yasyfi7@gmail.com"`
+	Code  string `json:"code" example:"123456"`
+}
+
 func NewUserHandler(app *fiber.App, usecase usecase.UserUsecase) {
 	handler := &UserHandler{userUsecase: usecase}
 
@@ -23,11 +33,16 @@ func NewUserHandler(app *fiber.App, usecase usecase.UserUsecase) {
 	api.Get("/me", middleware.Protected(), handler.GetProfile)
 }
 
+// @Summary Meminta Kode OTP
+// @Description Mengirimkan kode OTP ke email pengguna untuk proses otentikasi.
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body RequestOTPPayload true "Data Pengguna"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/users/auth/request [post]
 func (h *UserHandler) RequestOTP(c *fiber.Ctx) error {
-	var req struct {
-		FullName string `json:"full_name"`
-		Email    string `json:"email"`
-	}
+	var req RequestOTPPayload
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format JSON tidak valid"})
@@ -40,11 +55,17 @@ func (h *UserHandler) RequestOTP(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Kode OTP telah dikirim melalui email"})
 }
 
+// @Summary Verifikasi Kode OTP
+// @Description Memverifikasi OTP dan mengeluarkan token JWT di dalam Cookie (Sesi Aktif).
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body VerifyOTPPayload true "Data OTP"
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /api/users/auth/verify [post]
 func (h *UserHandler) VerifyOTP(c *fiber.Ctx) error {
-	var req struct {
-		Email string `json:"email"`
-		Code  string `json:"code"`
-	}
+	var req VerifyOTPPayload
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format JSON tidak valid"})
@@ -76,6 +97,14 @@ func (h *UserHandler) VerifyOTP(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Mendapatkan Profil Pengguna
+// @Description Mengambil data profil dari pengguna yang sedang login berdasarkan JWT.
+// @Tags Users
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /api/users/me [get]
 func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
 	userIDStr, ok := c.Locals("user_id").(string)
 	if !ok || userIDStr == "" {

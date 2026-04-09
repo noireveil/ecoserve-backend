@@ -78,7 +78,7 @@ func (u *userUsecase) VerifyOTP(email, code string) (*domain.User, error) {
 		return nil, errors.New("kode OTP telah kadaluarsa")
 	}
 
-	u.userRepo.UpdateOTP(email, "", time.Now())
+	_ = u.userRepo.UpdateOTP(email, "", time.Now())
 
 	return user, nil
 }
