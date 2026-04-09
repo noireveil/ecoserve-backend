@@ -6,14 +6,25 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
 
 	"github.com/noireveil/ecoserve-backend/internal/config"
 	"github.com/noireveil/ecoserve-backend/internal/delivery/http/handlers"
 	"github.com/noireveil/ecoserve-backend/internal/repository"
 	"github.com/noireveil/ecoserve-backend/internal/usecase"
+
+	_ "github.com/noireveil/ecoserve-backend/docs"
 )
 
+// @title EcoServe API
+// @version 1.0
+// @description REST API untuk Platform Manajemen Siklus Hidup Elektronik & Servis Sirkular.
+// @host localhost:3000
+// @BasePath /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in cookie
+// @name jwt
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -32,6 +43,14 @@ func main() {
 		AllowHeaders:     "Origin, Content-Type, Accept",
 	}))
 
+	app.Get("/swagger/*", swagger.HandlerDefault)
+
+	// @Summary Cek Status Peladen
+	// @Description Memeriksa ketersediaan API dan konektivitas basis data EcoServe
+	// @Tags Base
+	// @Produce json
+	// @Success 200 {object} map[string]interface{}
+	// @Router /health [get]
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"status":  "success",
@@ -50,7 +69,7 @@ func main() {
 	handlers.NewUserHandler(app, userUsecase)
 	handlers.NewTechnicianHandler(app, techUsecase)
 	handlers.NewOrderHandler(app, orderUsecase)
-	handlers.NewChatbotHandler(app)
+	handlers.NewChatbotHandler(app, techUsecase)
 
 	port := os.Getenv("PORT")
 	if port == "" {

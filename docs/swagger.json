@@ -1,0 +1,487 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "REST API untuk Platform Manajemen Siklus Hidup Elektronik \u0026 Servis Sirkular.",
+        "title": "EcoServe API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/",
+    "paths": {
+        "/api/chatbot/triage": {
+            "post": {
+                "description": "Menganalisis kerusakan dan memberikan panduan atau merujuk ke teknisi terdekat berdasarkan Confidence Gate.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chatbot"
+                ],
+                "summary": "Triase Kerusakan via AI",
+                "parameters": [
+                    {
+                        "description": "Data Keluhan dan Geospasial",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TriageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Menginisiasi pesanan servis elektronik baru oleh Konsumen.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Membuat Pesanan Perbaikan",
+                "parameters": [
+                    {
+                        "description": "Data Kerusakan",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateOrderPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/{id}/complete": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Menyelesaikan pesanan dengan memvalidasi foto bukti dan koordinat GPS (Metrik EPA WARM).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Menyelesaikan Transaksi \u0026 Kalkulasi Emisi (Anti-Fraud)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Pesanan (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data Penyelesaian",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/usecase.CompleteOrderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/technicians/": {
+            "post": {
+                "description": "Menambahkan data teknisi baru beserta titik koordinat operasinya.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Technicians"
+                ],
+                "summary": "Mendaftarkan Teknisi Baru",
+                "parameters": [
+                    {
+                        "description": "Data Teknisi",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.RegisterTechnicianRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/technicians/nearby": {
+            "get": {
+                "description": "Melakukan kueri spasial (PostGIS) untuk mencari teknisi dalam radius tertentu.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Technicians"
+                ],
+                "summary": "Cari Teknisi Terdekat",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Garis Bujur (Longitude)",
+                        "name": "lon",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Garis Lintang (Latitude)",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Radius pencarian dalam KM (Default: 10)",
+                        "name": "radius_km",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/auth/request": {
+            "post": {
+                "description": "Mengirimkan kode OTP ke email pengguna untuk proses otentikasi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Meminta Kode OTP",
+                "parameters": [
+                    {
+                        "description": "Data Pengguna",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.RequestOTPPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/auth/verify": {
+            "post": {
+                "description": "Memverifikasi OTP dan mengeluarkan token JWT di dalam Cookie (Sesi Aktif).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Verifikasi Kode OTP",
+                "parameters": [
+                    {
+                        "description": "Data OTP",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.VerifyOTPPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/me": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengambil data profil dari pengguna yang sedang login berdasarkan JWT.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Mendapatkan Profil Pengguna",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domain.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "fullName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "otpcode": {
+                    "type": "string"
+                },
+                "otpexpiresAt": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.CreateOrderPayload": {
+            "type": "object",
+            "properties": {
+                "device_category": {
+                    "type": "string",
+                    "example": "Pendingin \u0026 Komersial"
+                },
+                "problem_description": {
+                    "type": "string",
+                    "example": "Kompresor mati dan berasap"
+                }
+            }
+        },
+        "handlers.RegisterTechnicianRequest": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "experienceYears": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number",
+                    "example": -6.1944
+                },
+                "location": {
+                    "type": "string"
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 106.8229
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "specialization": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/domain.User"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.RequestOTPPayload": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "yasyfi7@gmail.com"
+                },
+                "full_name": {
+                    "type": "string",
+                    "example": "Muhammad Yasyfi"
+                }
+            }
+        },
+        "handlers.TriageRequest": {
+            "type": "object",
+            "properties": {
+                "latitude": {
+                    "type": "number",
+                    "example": -6.1944
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 106.8229
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Kompresor kulkas saya mati dan bau hangus."
+                }
+            }
+        },
+        "handlers.VerifyOTPPayload": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "yasyfi7@gmail.com"
+                }
+            }
+        },
+        "usecase.CompleteOrderRequest": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "device_weight": {
+                    "type": "number"
+                },
+                "distance_km": {
+                    "type": "number"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "photo_url": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "jwt",
+            "in": "cookie"
+        }
+    }
+}

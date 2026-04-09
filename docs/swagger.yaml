@@ -1,0 +1,328 @@
+basePath: /
+definitions:
+  domain.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      fullName:
+        type: string
+      id:
+        type: string
+      otpcode:
+        type: string
+      otpexpiresAt:
+        type: string
+      role:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  handlers.CreateOrderPayload:
+    properties:
+      device_category:
+        example: Pendingin & Komersial
+        type: string
+      problem_description:
+        example: Kompresor mati dan berasap
+        type: string
+    type: object
+  handlers.RegisterTechnicianRequest:
+    properties:
+      createdAt:
+        type: string
+      experienceYears:
+        type: integer
+      id:
+        type: string
+      latitude:
+        example: -6.1944
+        type: number
+      location:
+        type: string
+      longitude:
+        example: 106.8229
+        type: number
+      rating:
+        type: number
+      specialization:
+        type: string
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/domain.User'
+      userID:
+        type: string
+    type: object
+  handlers.RequestOTPPayload:
+    properties:
+      email:
+        example: yasyfi7@gmail.com
+        type: string
+      full_name:
+        example: Muhammad Yasyfi
+        type: string
+    type: object
+  handlers.TriageRequest:
+    properties:
+      latitude:
+        example: -6.1944
+        type: number
+      longitude:
+        example: 106.8229
+        type: number
+      message:
+        example: Kompresor kulkas saya mati dan bau hangus.
+        type: string
+    type: object
+  handlers.VerifyOTPPayload:
+    properties:
+      code:
+        example: "123456"
+        type: string
+      email:
+        example: yasyfi7@gmail.com
+        type: string
+    type: object
+  usecase.CompleteOrderRequest:
+    properties:
+      category:
+        type: string
+      device_weight:
+        type: number
+      distance_km:
+        type: number
+      latitude:
+        type: number
+      longitude:
+        type: number
+      photo_url:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: REST API untuk Platform Manajemen Siklus Hidup Elektronik & Servis
+    Sirkular.
+  title: EcoServe API
+  version: "1.0"
+paths:
+  /api/chatbot/triage:
+    post:
+      consumes:
+      - application/json
+      description: Menganalisis kerusakan dan memberikan panduan atau merujuk ke teknisi
+        terdekat berdasarkan Confidence Gate.
+      parameters:
+      - description: Data Keluhan dan Geospasial
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TriageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Triase Kerusakan via AI
+      tags:
+      - Chatbot
+  /api/orders/:
+    post:
+      consumes:
+      - application/json
+      description: Menginisiasi pesanan servis elektronik baru oleh Konsumen.
+      parameters:
+      - description: Data Kerusakan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateOrderPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Membuat Pesanan Perbaikan
+      tags:
+      - Orders
+  /api/orders/{id}/complete:
+    put:
+      consumes:
+      - application/json
+      description: Menyelesaikan pesanan dengan memvalidasi foto bukti dan koordinat
+        GPS (Metrik EPA WARM).
+      parameters:
+      - description: ID Pesanan (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Data Penyelesaian
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.CompleteOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Menyelesaikan Transaksi & Kalkulasi Emisi (Anti-Fraud)
+      tags:
+      - Orders
+  /api/technicians/:
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan data teknisi baru beserta titik koordinat operasinya.
+      parameters:
+      - description: Data Teknisi
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterTechnicianRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Mendaftarkan Teknisi Baru
+      tags:
+      - Technicians
+  /api/technicians/nearby:
+    get:
+      description: Melakukan kueri spasial (PostGIS) untuk mencari teknisi dalam radius
+        tertentu.
+      parameters:
+      - description: Garis Bujur (Longitude)
+        in: query
+        name: lon
+        required: true
+        type: number
+      - description: Garis Lintang (Latitude)
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: 'Radius pencarian dalam KM (Default: 10)'
+        in: query
+        name: radius_km
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Cari Teknisi Terdekat
+      tags:
+      - Technicians
+  /api/users/auth/request:
+    post:
+      consumes:
+      - application/json
+      description: Mengirimkan kode OTP ke email pengguna untuk proses otentikasi.
+      parameters:
+      - description: Data Pengguna
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RequestOTPPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Meminta Kode OTP
+      tags:
+      - Auth
+  /api/users/auth/verify:
+    post:
+      consumes:
+      - application/json
+      description: Memverifikasi OTP dan mengeluarkan token JWT di dalam Cookie (Sesi
+        Aktif).
+      parameters:
+      - description: Data OTP
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.VerifyOTPPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verifikasi Kode OTP
+      tags:
+      - Auth
+  /api/users/me:
+    get:
+      description: Mengambil data profil dari pengguna yang sedang login berdasarkan
+        JWT.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mendapatkan Profil Pengguna
+      tags:
+      - Users
+securityDefinitions:
+  ApiKeyAuth:
+    in: cookie
+    name: jwt
+    type: apiKey
+swagger: "2.0"
