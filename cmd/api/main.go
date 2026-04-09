@@ -3,9 +3,11 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
 
@@ -41,6 +43,19 @@ func main() {
 		AllowOrigins:     "http://localhost:5173, http://localhost:3000",
 		AllowCredentials: true,
 		AllowHeaders:     "Origin, Content-Type, Accept",
+	}))
+
+	app.Use("/api", limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
+				"error": "Terlalu banyak permintaan ke server. Sistem mendeteksi potensi spam. Silakan coba lagi dalam 1 menit.",
+			})
+		},
 	}))
 
 	app.Get("/swagger/*", swagger.HandlerDefault)
