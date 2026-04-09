@@ -16,6 +16,9 @@ type Order struct {
 	ProblemDescription string      `gorm:"type:text;not null"`
 	Status             string      `gorm:"type:varchar(50);not null;default:'PENDING'"`
 	EWasteSavedKg      float64     `gorm:"type:decimal(10,2);default:0.00"`
+	PhotoProofURL      *string     `gorm:"type:text"`
+	GPSLockCoord       *string     `gorm:"type:geometry(Point,4326)"`
+	IsDualConfirmed    bool        `gorm:"default:false"`
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
 }
