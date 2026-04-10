@@ -27,10 +27,13 @@ func NewUserUsecase(userRepo repository.UserRepository) UserUsecase {
 }
 
 func (u *userUsecase) RequestOTP(fullName, email string) error {
-	_, err := u.userRepo.FindByEmail(email)
+	user, err := u.userRepo.FindByEmail(email)
+	var targetName string
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			targetName = fullName
+
 			newUser := &domain.User{
 				FullName: fullName,
 				Email:    email,
@@ -42,6 +45,8 @@ func (u *userUsecase) RequestOTP(fullName, email string) error {
 		} else {
 			return err
 		}
+	} else {
+		targetName = user.FullName
 	}
 
 	otpCode, _ := utils.GenerateOTP()
@@ -51,13 +56,13 @@ func (u *userUsecase) RequestOTP(fullName, email string) error {
 		return errUpdate
 	}
 
-	go func(target, code string) {
-		if errSend := utils.SendEmailOTP(target, code); errSend != nil {
+	go func(target, name, code string) {
+		if errSend := utils.SendEmailOTP(target, name, code); errSend != nil {
 			log.Printf("Gagal mengirim OTP ke %s: %v\n", target, errSend)
 		} else {
 			log.Printf("OTP berhasil dikirim ke email: %s\n", target)
 		}
-	}(email, otpCode)
+	}(email, targetName, otpCode)
 
 	return nil
 }

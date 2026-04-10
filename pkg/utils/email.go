@@ -10,13 +10,17 @@ import (
 	"os"
 )
 
-func SendEmailOTP(targetEmail string, code string) error {
+func SendEmailOTP(targetEmail string, name string, code string) error {
 	apiKey := os.Getenv("MAILJET_API_KEY")
 	secretKey := os.Getenv("MAILJET_SECRET_KEY")
 	senderEmail := os.Getenv("MAILJET_SENDER_EMAIL")
 
 	if apiKey == "" || secretKey == "" || senderEmail == "" {
 		return errors.New("kredensial Mailjet tidak terdefinisi pada variabel lingkungan")
+	}
+
+	if name == "" {
+		name = "Pengguna"
 	}
 
 	htmlBody := fmt.Sprintf(`
@@ -42,7 +46,7 @@ func SendEmailOTP(targetEmail string, code string) error {
                     <tr>
                         <td style="padding: 40px 35px;">
                             <p style="margin: 0 0 20px 0; font-size: 16px; color: #1f2937; line-height: 1.6;">
-                                Halo,
+                                Halo <strong>%s</strong>,
                             </p>
                             <p style="margin: 0 0 30px 0; font-size: 16px; color: #4b5563; line-height: 1.6;">
                                 Seseorang mencoba masuk ke akun EcoServe Anda. Gunakan kode verifikasi di bawah ini untuk melanjutkan proses:
@@ -75,7 +79,7 @@ func SendEmailOTP(targetEmail string, code string) error {
         </tr>
     </table>
 </body>
-</html>`, code)
+</html>`, name, code)
 
 	payload := map[string]interface{}{
 		"Messages": []map[string]interface{}{
@@ -87,6 +91,7 @@ func SendEmailOTP(targetEmail string, code string) error {
 				"To": []map[string]string{
 					{
 						"Email": targetEmail,
+						"Name":  name,
 					},
 				},
 				"Subject":  "Kode Autentikasi EcoServe",
