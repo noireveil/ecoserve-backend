@@ -22,7 +22,6 @@ import (
 // @title EcoServe API
 // @version 1.0
 // @description REST API untuk Platform Manajemen Siklus Hidup Elektronik & Servis Sirkular.
-// @host localhost:3000
 // @BasePath /
 // @securityDefinitions.apikey ApiKeyAuth
 // @in cookie

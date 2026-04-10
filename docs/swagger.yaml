@@ -100,7 +100,6 @@ definitions:
       photo_url:
         type: string
     type: object
-host: localhost:3000
 info:
   contact: {}
   description: REST API untuk Platform Manajemen Siklus Hidup Elektronik & Servis
