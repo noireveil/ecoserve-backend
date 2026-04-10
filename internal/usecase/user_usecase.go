@@ -16,6 +16,7 @@ type UserUsecase interface {
 	RequestOTP(fullName, email string) error
 	VerifyOTP(email, code string) (*domain.User, error)
 	GetUserByID(id string) (*domain.User, error)
+	DeleteAccount(id string) error
 }
 
 type userUsecase struct {
@@ -90,4 +91,8 @@ func (u *userUsecase) VerifyOTP(email, code string) (*domain.User, error) {
 
 func (u *userUsecase) GetUserByID(id string) (*domain.User, error) {
 	return u.userRepo.FindByID(id)
+}
+
+func (u *userUsecase) DeleteAccount(id string) error {
+	return u.userRepo.Delete(id)
 }

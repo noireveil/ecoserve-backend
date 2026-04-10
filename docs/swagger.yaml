@@ -1,24 +1,5 @@
 basePath: /
 definitions:
-  domain.User:
-    properties:
-      createdAt:
-        type: string
-      email:
-        type: string
-      fullName:
-        type: string
-      id:
-        type: string
-      otpcode:
-        type: string
-      otpexpiresAt:
-        type: string
-      role:
-        type: string
-      updatedAt:
-        type: string
-    type: object
   handlers.CreateOrderPayload:
     properties:
       device_category:
@@ -29,31 +10,6 @@ definitions:
         type: string
     type: object
   handlers.RegisterTechnicianRequest:
-    properties:
-      createdAt:
-        type: string
-      experienceYears:
-        type: integer
-      id:
-        type: string
-      latitude:
-        example: -6.1944
-        type: number
-      location:
-        type: string
-      longitude:
-        example: 106.8229
-        type: number
-      rating:
-        type: number
-      specialization:
-        type: string
-      updatedAt:
-        type: string
-      user:
-        $ref: '#/definitions/domain.User'
-      userID:
-        type: string
     type: object
   handlers.RequestOTPPayload:
     properties:
@@ -298,6 +254,32 @@ paths:
       tags:
       - Auth
   /api/users/me:
+    delete:
+      description: Menghapus akun dan mencabut sesi (logout). Data tidak dihapus permanen
+        untuk menjaga integritas relasi EPA WARM.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Menghapus Akun Pengguna (Soft Delete)
+      tags:
+      - Users
     get:
       description: Mengambil data profil dari pengguna yang sedang login berdasarkan
         JWT.

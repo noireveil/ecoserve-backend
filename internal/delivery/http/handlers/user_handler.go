@@ -31,6 +31,7 @@ func NewUserHandler(app *fiber.App, usecase usecase.UserUsecase) {
 	api.Post("/auth/verify", handler.VerifyOTP)
 
 	api.Get("/me", middleware.Protected(), handler.GetProfile)
+	api.Delete("/me", middleware.Protected(), handler.DeleteAccount)
 }
 
 // @Summary Meminta Kode OTP
@@ -118,5 +119,38 @@ func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"data": user,
+	})
+}
+
+// @Summary Menghapus Akun Pengguna (Soft Delete)
+// @Description Menghapus akun dan mencabut sesi (logout). Data tidak dihapus permanen untuk menjaga integritas relasi EPA WARM.
+// @Tags Users
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/users/me [delete]
+func (h *UserHandler) DeleteAccount(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok || userIDStr == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Akses ditolak: Sesi tidak valid"})
+	}
+
+	if err := h.userUsecase.DeleteAccount(userIDStr); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal memproses penghapusan akun"})
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "jwt",
+		Value:    "",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		HTTPOnly: true,
+		SameSite: "None",
+		Secure:   true,
+	})
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Akun berhasil dihapus. Sesi telah diakhiri.",
 	})
 }
