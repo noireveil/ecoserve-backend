@@ -4,7 +4,8 @@ EcoServe adalah platform manajemen siklus hidup elektronik yang dirancang untuk 
 
 ## Overview Fitur
 
-* **AI Triage System:** Integrasi **Gemini 3 Flash** untuk mendiagnosis kerusakan perangkat secara otomatis dengan mekanisme *Confidence Gate* untuk meminimalkan halusinasi AI.
+* **Digital Product Passport (DPP):** Registrasi dan pencatatan riwayat perangkat elektronik konsumen secara digital untuk memantau status garansi dan rekam jejak perbaikan.
+* **AI Triage System:** Integrasi **Gemini 2.5 Flash** untuk mendiagnosis kerusakan perangkat secara otomatis dengan mekanisme *Confidence Gate* untuk meminimalkan halusinasi AI.
 * **Geospatial Search:** Memanfaatkan ekstensi **PostGIS** untuk melakukan pencarian teknisi terdekat berdasarkan radius geografis secara akurat.
 * **Automated E-Waste Tracker:** Kalkulasi otomatis penghematan emisi dan limbah menggunakan algoritma **EPA WARM v15** setiap kali transaksi selesai.
 * **Anti-Fraud & Security Layer:** Protokol keamanan yang mencakup *GPS Locking*, bukti visual (*Photo Proof*), serta **Fiber Rate Limiter** untuk perlindungan terhadap serangan DDoS dan spam API.
@@ -15,7 +16,7 @@ EcoServe adalah platform manajemen siklus hidup elektronik yang dirancang untuk 
 * **Language:** Go (Golang) 1.25+
 * **Web Framework:** Fiber v2
 * **Database:** PostgreSQL (Hosted on Supabase) + PostGIS
-* **AI Engine:** Google Gemini 3 Flash
+* **AI Engine:** Google Gemini 2.5 Flash
 * **Email Service:** Mailjet API (HTTP Protocol)
 * **Deployment:** Render (Backend) & Vercel (Frontend)
 
@@ -39,7 +40,7 @@ Sesuai standar SRS, dokumentasi API tersedia secara interaktif melalui Swagger U
 
 1.  **Clone Repositori:**
     ```bash
-    git clone https://github.com/noireveil/ecoserve-backend.git
+    git clone [https://github.com/noireveil/ecoserve-backend.git](https://github.com/noireveil/ecoserve-backend.git)
     cd ecoserve-backend
     ```
 2.  **Konfigurasi Environment:**
