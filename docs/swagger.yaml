@@ -1,5 +1,17 @@
 basePath: /
 definitions:
+  handlers.CreateDevicePayload:
+    properties:
+      brand_name:
+        example: Apple iPhone 14 Pro
+        type: string
+      category:
+        example: Smartphone
+        type: string
+      weight_in_kg:
+        example: 0.21
+        type: number
+    type: object
   handlers.CreateOrderPayload:
     properties:
       device_category:
@@ -92,7 +104,86 @@ paths:
       summary: Triase Kerusakan via AI
       tags:
       - Chatbot
+  /api/devices/:
+    get:
+      description: Mengambil daftar semua perangkat (DPP) yang dimiliki oleh pengguna.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mengambil Garasi Perangkat
+      tags:
+      - Devices
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan perangkat elektronik baru ke garasi pengguna untuk
+        pembuatan Digital Product Passport.
+      parameters:
+      - description: Data Perangkat
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateDevicePayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mendaftarkan Perangkat (DPP)
+      tags:
+      - Devices
+  /api/devices/{id}:
+    delete:
+      description: Menghapus perangkat elektronik dari garasi pengguna.
+      parameters:
+      - description: ID Perangkat (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Menghapus Perangkat (DPP)
+      tags:
+      - Devices
   /api/orders/:
+    get:
+      description: Mengambil daftar pesanan yang terkait dengan pengguna (sebagai
+        Konsumen atau Teknisi).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mendapatkan Riwayat Pesanan
+      tags:
+      - Orders
     post:
       consumes:
       - application/json

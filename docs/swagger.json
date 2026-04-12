@@ -50,7 +50,130 @@
                 }
             }
         },
+        "/api/devices/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengambil daftar semua perangkat (DPP) yang dimiliki oleh pengguna.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Mengambil Garasi Perangkat",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Menambahkan perangkat elektronik baru ke garasi pengguna untuk pembuatan Digital Product Passport.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Mendaftarkan Perangkat (DPP)",
+                "parameters": [
+                    {
+                        "description": "Data Perangkat",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateDevicePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/devices/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Menghapus perangkat elektronik dari garasi pengguna.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Menghapus Perangkat (DPP)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Perangkat (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/orders/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengambil daftar pesanan yang terkait dengan pengguna (sebagai Konsumen atau Teknisi).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Mendapatkan Riwayat Pesanan",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -365,6 +488,23 @@
         }
     },
     "definitions": {
+        "handlers.CreateDevicePayload": {
+            "type": "object",
+            "properties": {
+                "brand_name": {
+                    "type": "string",
+                    "example": "Apple iPhone 14 Pro"
+                },
+                "category": {
+                    "type": "string",
+                    "example": "Smartphone"
+                },
+                "weight_in_kg": {
+                    "type": "number",
+                    "example": 0.21
+                }
+            }
+        },
         "handlers.CreateOrderPayload": {
             "type": "object",
             "properties": {

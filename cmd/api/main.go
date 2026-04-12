@@ -72,17 +72,23 @@ func main() {
 		})
 	})
 
+	// Inisialisasi Repository
 	userRepo := repository.NewUserRepository(config.DB)
 	techRepo := repository.NewTechnicianRepository(config.DB)
 	orderRepo := repository.NewOrderRepository(config.DB)
+	deviceRepo := repository.NewDeviceRepository(config.DB)
 
+	// Inisialisasi Usecase
 	userUsecase := usecase.NewUserUsecase(userRepo)
 	techUsecase := usecase.NewTechnicianUsecase(techRepo)
 	orderUsecase := usecase.NewOrderUsecase(orderRepo)
+	deviceUsecase := usecase.NewDeviceUsecase(deviceRepo)
 
+	// Inisialisasi Handlers
 	handlers.NewUserHandler(app, userUsecase)
 	handlers.NewTechnicianHandler(app, techUsecase)
 	handlers.NewOrderHandler(app, orderUsecase)
+	handlers.NewDeviceHandler(app, deviceUsecase)
 	handlers.NewChatbotHandler(app, techUsecase)
 
 	port := os.Getenv("PORT")
