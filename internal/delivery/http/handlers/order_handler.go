@@ -22,7 +22,32 @@ func NewOrderHandler(app *fiber.App, usecase usecase.OrderUsecase) {
 
 	api := app.Group("/api/orders")
 	api.Post("/", middleware.Protected(), handler.Create)
+	api.Get("/", middleware.Protected(), handler.GetMyOrders)
 	api.Put("/:id/complete", middleware.Protected(), handler.Complete)
+}
+
+// @Summary Mendapatkan Riwayat Pesanan
+// @Description Mengambil daftar pesanan yang terkait dengan pengguna (sebagai Konsumen atau Teknisi).
+// @Tags Orders
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /api/orders/ [get]
+func (h *OrderHandler) GetMyOrders(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User ID tidak ditemukan pada token"})
+	}
+
+	orders, err := h.orderUsecase.GetUserOrders(userIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal mengambil data pesanan"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Berhasil mengambil riwayat pesanan",
+		"data":    orders,
+	})
 }
 
 // @Summary Membuat Pesanan Perbaikan

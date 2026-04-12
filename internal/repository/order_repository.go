@@ -11,6 +11,7 @@ import (
 type OrderRepository interface {
 	Create(order *domain.Order) error
 	FindByID(id string) (*domain.Order, error)
+	FindByUserID(userID string) ([]domain.Order, error)
 	CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved float64) error
 }
 
@@ -30,6 +31,15 @@ func (r *orderRepository) FindByID(id string) (*domain.Order, error) {
 	var order domain.Order
 	err := r.db.Preload("Customer").Preload("Technician").First(&order, "id = ?", id).Error
 	return &order, err
+}
+
+func (r *orderRepository) FindByUserID(userID string) ([]domain.Order, error) {
+	var orders []domain.Order
+	// Mengambil order di mana user sebagai customer ATAU sebagai technician
+	err := r.db.Preload("Customer").Preload("Technician").
+		Where("customer_id = ? OR technician_id = ?", userID, userID).
+		Order("created_at desc").Find(&orders).Error
+	return orders, err
 }
 
 func (r *orderRepository) CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved float64) error {
