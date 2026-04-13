@@ -44,27 +44,39 @@ func main() {
 		AllowHeaders:     "Origin, Content-Type, Accept",
 	}))
 
-	app.Use("/api", limiter.New(limiter.Config{
-		Max:        5,
+	// Konfigurasi Rate Limiter
+	authLimiter := limiter.New(limiter.Config{
+		Max:        3,
 		Expiration: 1 * time.Minute,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return c.IP()
 		},
 		LimitReached: func(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
-				"error": "Terlalu banyak permintaan ke server. Sistem mendeteksi potensi spam. Silakan coba lagi dalam 1 menit.",
+				"error": "Spam OTP terdeteksi. Silakan coba lagi dalam 1 menit.",
 			})
 		},
-	}))
+	})
+
+	dashboardLimiter := limiter.New(limiter.Config{
+		Max:        60,
+		Expiration: 1 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
+				"error": "Terlalu banyak permintaan. Silakan tunggu sebentar.",
+			})
+		},
+	})
+
+	app.Use("/api/users/auth", authLimiter)
+	app.Use("/api", dashboardLimiter)
 
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
-	// @Summary Cek Status Peladen
-	// @Description Memeriksa ketersediaan API dan konektivitas basis data EcoServe
-	// @Tags Base
-	// @Produce json
-	// @Success 200 {object} map[string]interface{}
-	// @Router /health [get]
+	// Health Check
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"status":  "success",
@@ -72,7 +84,7 @@ func main() {
 		})
 	})
 
-	// Inisialisasi Repository
+	// Inisialisasi Repositori
 	userRepo := repository.NewUserRepository(config.DB)
 	techRepo := repository.NewTechnicianRepository(config.DB)
 	orderRepo := repository.NewOrderRepository(config.DB)
@@ -84,7 +96,7 @@ func main() {
 	orderUsecase := usecase.NewOrderUsecase(orderRepo)
 	deviceUsecase := usecase.NewDeviceUsecase(deviceRepo)
 
-	// Inisialisasi Handlers
+	// Inisialisasi Handler
 	handlers.NewUserHandler(app, userUsecase)
 	handlers.NewTechnicianHandler(app, techUsecase)
 	handlers.NewOrderHandler(app, orderUsecase)

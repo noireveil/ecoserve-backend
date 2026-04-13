@@ -1,59 +1,27 @@
 basePath: /
 definitions:
-  handlers.CreateDevicePayload:
+  github_com_noireveil_ecoserve-backend_internal_domain.User:
     properties:
-      brand_name:
-        example: Apple iPhone 14 Pro
+      createdAt:
         type: string
-      category:
-        example: Smartphone
-        type: string
-      weight_in_kg:
-        example: 0.21
-        type: number
-    type: object
-  handlers.CreateOrderPayload:
-    properties:
-      device_category:
-        example: Pendingin & Komersial
-        type: string
-      problem_description:
-        example: Kompresor mati dan berasap
-        type: string
-    type: object
-  handlers.RegisterTechnicianRequest:
-    type: object
-  handlers.RequestOTPPayload:
-    properties:
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
       email:
-        example: yasyfi7@gmail.com
         type: string
-      full_name:
-        example: Muhammad Yasyfi
+      fullName:
         type: string
-    type: object
-  handlers.TriageRequest:
-    properties:
-      latitude:
-        example: -6.1944
-        type: number
-      longitude:
-        example: 106.8229
-        type: number
-      message:
-        example: Kompresor kulkas saya mati dan bau hangus.
+      id:
+        type: string
+      otpcode:
+        type: string
+      otpexpiresAt:
+        type: string
+      role:
+        type: string
+      updatedAt:
         type: string
     type: object
-  handlers.VerifyOTPPayload:
-    properties:
-      code:
-        example: "123456"
-        type: string
-      email:
-        example: yasyfi7@gmail.com
-        type: string
-    type: object
-  usecase.CompleteOrderRequest:
+  github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest:
     properties:
       category:
         type: string
@@ -66,6 +34,92 @@ definitions:
       longitude:
         type: number
       photo_url:
+        type: string
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  internal_delivery_http_handlers.CreateDevicePayload:
+    properties:
+      brand_name:
+        example: Apple iPhone 14 Pro
+        type: string
+      category:
+        example: Smartphone
+        type: string
+      weight_in_kg:
+        example: 0.21
+        type: number
+    type: object
+  internal_delivery_http_handlers.CreateOrderPayload:
+    properties:
+      device_category:
+        example: Pendingin & Komersial
+        type: string
+      problem_description:
+        example: Kompresor mati dan berasap
+        type: string
+    type: object
+  internal_delivery_http_handlers.RegisterTechnicianRequest:
+    properties:
+      createdAt:
+        type: string
+      experienceYears:
+        type: integer
+      id:
+        type: string
+      latitude:
+        example: -6.1944
+        type: number
+      location:
+        type: string
+      longitude:
+        example: 106.8229
+        type: number
+      rating:
+        type: number
+      specialization:
+        type: string
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/github_com_noireveil_ecoserve-backend_internal_domain.User'
+      userID:
+        type: string
+    type: object
+  internal_delivery_http_handlers.RequestOTPPayload:
+    properties:
+      email:
+        example: yasyfi7@gmail.com
+        type: string
+      full_name:
+        example: Muhammad Yasyfi
+        type: string
+    type: object
+  internal_delivery_http_handlers.TriageRequest:
+    properties:
+      latitude:
+        example: -6.1944
+        type: number
+      longitude:
+        example: 106.8229
+        type: number
+      message:
+        example: Kompresor kulkas saya mati dan bau hangus.
+        type: string
+    type: object
+  internal_delivery_http_handlers.VerifyOTPPayload:
+    properties:
+      code:
+        example: "123456"
+        type: string
+      email:
+        example: yasyfi7@gmail.com
         type: string
     type: object
 info:
@@ -87,7 +141,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.TriageRequest'
+          $ref: '#/definitions/internal_delivery_http_handlers.TriageRequest'
       produces:
       - application/json
       responses:
@@ -131,7 +185,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateDevicePayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.CreateDevicePayload'
       produces:
       - application/json
       responses:
@@ -194,7 +248,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateOrderPayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.CreateOrderPayload'
       produces:
       - application/json
       responses:
@@ -225,7 +279,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/usecase.CompleteOrderRequest'
+          $ref: '#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest'
       produces:
       - application/json
       responses:
@@ -250,7 +304,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.RegisterTechnicianRequest'
+          $ref: '#/definitions/internal_delivery_http_handlers.RegisterTechnicianRequest'
       produces:
       - application/json
       responses:
@@ -303,7 +357,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.RequestOTPPayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.RequestOTPPayload'
       produces:
       - application/json
       responses:
@@ -327,7 +381,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.VerifyOTPPayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.VerifyOTPPayload'
       produces:
       - application/json
       responses:
