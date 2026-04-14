@@ -23,7 +23,27 @@ func NewOrderHandler(app *fiber.App, usecase usecase.OrderUsecase) {
 	api := app.Group("/api/orders")
 	api.Post("/", middleware.Protected(), handler.Create)
 	api.Get("/", middleware.Protected(), handler.GetMyOrders)
+	api.Get("/incoming", middleware.Protected(), handler.GetIncomingOrders)
 	api.Put("/:id/complete", middleware.Protected(), handler.Complete)
+}
+
+// @Summary Mendapatkan Pesanan Masuk
+// @Description Mengambil daftar pesanan yang berstatus PENDING dan belum memiliki teknisi.
+// @Tags Orders
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /api/orders/incoming [get]
+func (h *OrderHandler) GetIncomingOrders(c *fiber.Ctx) error {
+	orders, err := h.orderUsecase.GetIncomingOrders()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal mengambil data pesanan masuk"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Berhasil mengambil daftar pesanan masuk",
+		"data":    orders,
+	})
 }
 
 // @Summary Mendapatkan Riwayat Pesanan

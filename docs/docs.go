@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.TriageRequest"
+                            "$ref": "#/definitions/handlers.TriageRequest"
                         }
                     }
                 ],
@@ -106,7 +106,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.CreateDevicePayload"
+                            "$ref": "#/definitions/handlers.CreateDevicePayload"
                         }
                     }
                 ],
@@ -205,13 +205,39 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.CreateOrderPayload"
+                            "$ref": "#/definitions/handlers.CreateOrderPayload"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
                         "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/incoming": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengambil daftar pesanan yang berstatus PENDING dan belum memiliki teknisi.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Mendapatkan Pesanan Masuk",
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -252,7 +278,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest"
+                            "$ref": "#/definitions/usecase.CompleteOrderRequest"
                         }
                     }
                 ],
@@ -287,7 +313,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.RegisterTechnicianRequest"
+                            "$ref": "#/definitions/handlers.RegisterTechnicianRequest"
                         }
                     }
                 ],
@@ -365,7 +391,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.RequestOTPPayload"
+                            "$ref": "#/definitions/handlers.RequestOTPPayload"
                         }
                     }
                 ],
@@ -400,7 +426,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.VerifyOTPPayload"
+                            "$ref": "#/definitions/handlers.VerifyOTPPayload"
                         }
                     }
                 ],
@@ -495,39 +521,83 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_noireveil_ecoserve-backend_internal_domain.User": {
+        "handlers.CreateDevicePayload": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
+                "brand_name": {
+                    "type": "string",
+                    "example": "Apple iPhone 14 Pro"
                 },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
+                "category": {
+                    "type": "string",
+                    "example": "Smartphone"
                 },
-                "email": {
-                    "type": "string"
-                },
-                "fullName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "otpcode": {
-                    "type": "string"
-                },
-                "otpexpiresAt": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
+                "weight_in_kg": {
+                    "type": "number",
+                    "example": 0.21
                 }
             }
         },
-        "github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest": {
+        "handlers.CreateOrderPayload": {
+            "type": "object",
+            "properties": {
+                "device_category": {
+                    "type": "string",
+                    "example": "Pendingin \u0026 Komersial"
+                },
+                "problem_description": {
+                    "type": "string",
+                    "example": "Kompresor mati dan berasap"
+                }
+            }
+        },
+        "handlers.RegisterTechnicianRequest": {
+            "type": "object"
+        },
+        "handlers.RequestOTPPayload": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "yasyfi7@gmail.com"
+                },
+                "full_name": {
+                    "type": "string",
+                    "example": "Muhammad Yasyfi"
+                }
+            }
+        },
+        "handlers.TriageRequest": {
+            "type": "object",
+            "properties": {
+                "latitude": {
+                    "type": "number",
+                    "example": -6.1944
+                },
+                "longitude": {
+                    "type": "number",
+                    "example": 106.8229
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Kompresor kulkas saya mati dan bau hangus."
+                }
+            }
+        },
+        "handlers.VerifyOTPPayload": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "yasyfi7@gmail.com"
+                }
+            }
+        },
+        "usecase.CompleteOrderRequest": {
             "type": "object",
             "properties": {
                 "category": {
@@ -547,131 +617,6 @@ const docTemplate = `{
                 },
                 "photo_url": {
                     "type": "string"
-                }
-            }
-        },
-        "gorm.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
-                }
-            }
-        },
-        "internal_delivery_http_handlers.CreateDevicePayload": {
-            "type": "object",
-            "properties": {
-                "brand_name": {
-                    "type": "string",
-                    "example": "Apple iPhone 14 Pro"
-                },
-                "category": {
-                    "type": "string",
-                    "example": "Smartphone"
-                },
-                "weight_in_kg": {
-                    "type": "number",
-                    "example": 0.21
-                }
-            }
-        },
-        "internal_delivery_http_handlers.CreateOrderPayload": {
-            "type": "object",
-            "properties": {
-                "device_category": {
-                    "type": "string",
-                    "example": "Pendingin \u0026 Komersial"
-                },
-                "problem_description": {
-                    "type": "string",
-                    "example": "Kompresor mati dan berasap"
-                }
-            }
-        },
-        "internal_delivery_http_handlers.RegisterTechnicianRequest": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "experienceYears": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "latitude": {
-                    "type": "number",
-                    "example": -6.1944
-                },
-                "location": {
-                    "type": "string"
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": 106.8229
-                },
-                "rating": {
-                    "type": "number"
-                },
-                "specialization": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/github_com_noireveil_ecoserve-backend_internal_domain.User"
-                },
-                "userID": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_delivery_http_handlers.RequestOTPPayload": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "yasyfi7@gmail.com"
-                },
-                "full_name": {
-                    "type": "string",
-                    "example": "Muhammad Yasyfi"
-                }
-            }
-        },
-        "internal_delivery_http_handlers.TriageRequest": {
-            "type": "object",
-            "properties": {
-                "latitude": {
-                    "type": "number",
-                    "example": -6.1944
-                },
-                "longitude": {
-                    "type": "number",
-                    "example": 106.8229
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Kompresor kulkas saya mati dan bau hangus."
-                }
-            }
-        },
-        "internal_delivery_http_handlers.VerifyOTPPayload": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "123456"
-                },
-                "email": {
-                    "type": "string",
-                    "example": "yasyfi7@gmail.com"
                 }
             }
         }
