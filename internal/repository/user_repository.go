@@ -13,6 +13,7 @@ type UserRepository interface {
 	FindByID(id string) (*domain.User, error)
 	UpdateOTP(email, code string, expiresAt time.Time) error
 	Delete(id string) error
+	UpdateRole(id string, role string) error
 }
 
 type userRepository struct {
@@ -48,4 +49,8 @@ func (r *userRepository) UpdateOTP(email, code string, expiresAt time.Time) erro
 
 func (r *userRepository) Delete(id string) error {
 	return r.db.Where("id = ?", id).Delete(&domain.User{}).Error
+}
+
+func (r *userRepository) UpdateRole(id string, role string) error {
+	return r.db.Model(&domain.User{}).Where("id = ?", id).Update("role", role).Error
 }

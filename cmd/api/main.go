@@ -92,7 +92,7 @@ func main() {
 
 	// Inisialisasi Usecase
 	userUsecase := usecase.NewUserUsecase(userRepo)
-	techUsecase := usecase.NewTechnicianUsecase(techRepo)
+	techUsecase := usecase.NewTechnicianUsecase(techRepo, userRepo)
 	orderUsecase := usecase.NewOrderUsecase(orderRepo)
 	deviceUsecase := usecase.NewDeviceUsecase(deviceRepo)
 

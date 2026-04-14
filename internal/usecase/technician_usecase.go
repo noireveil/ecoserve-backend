@@ -12,10 +12,11 @@ type TechnicianUsecase interface {
 
 type technicianUsecase struct {
 	techRepo repository.TechnicianRepository
+	userRepo repository.UserRepository
 }
 
-func NewTechnicianUsecase(techRepo repository.TechnicianRepository) TechnicianUsecase {
-	return &technicianUsecase{techRepo}
+func NewTechnicianUsecase(techRepo repository.TechnicianRepository, userRepo repository.UserRepository) TechnicianUsecase {
+	return &technicianUsecase{techRepo, userRepo}
 }
 
 func (u *technicianUsecase) GetNearbyTechnicians(lon, lat float64, radiusKm int) ([]domain.Technician, error) {
@@ -23,5 +24,10 @@ func (u *technicianUsecase) GetNearbyTechnicians(lon, lat float64, radiusKm int)
 }
 
 func (u *technicianUsecase) RegisterTechnician(technician *domain.Technician, lon, lat float64) error {
-	return u.techRepo.Create(technician, lon, lat)
+	err := u.techRepo.Create(technician, lon, lat)
+	if err != nil {
+		return err
+	}
+
+	return u.userRepo.UpdateRole(technician.UserID.String(), "technician")
 }

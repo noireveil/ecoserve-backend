@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/google/uuid"
 	"github.com/noireveil/ecoserve-backend/internal/domain"
 	"gorm.io/gorm"
 )
@@ -19,6 +20,10 @@ func NewTechnicianRepository(db *gorm.DB) TechnicianRepository {
 }
 
 func (r *technicianRepository) Create(technician *domain.Technician, lon float64, lat float64) error {
+	if technician.ID == uuid.Nil {
+		technician.ID = uuid.New()
+	}
+
 	query := `
 		INSERT INTO technicians (id, user_id, specialization, experience_years, rating, location, created_at, updated_at)
 		VALUES (?, ?, ?, ?, ?, ST_SetSRID(ST_MakePoint(?, ?), 4326), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
