@@ -40,7 +40,7 @@ Sesuai standar SRS, dokumentasi API tersedia secara interaktif melalui Swagger U
 
 1.  **Clone Repositori:**
     ```bash
-    git clone [https://github.com/noireveil/ecoserve-backend.git](https://github.com/noireveil/ecoserve-backend.git)
+    git clone https://github.com/noireveil/ecoserve-backend.git
     cd ecoserve-backend
     ```
 2.  **Konfigurasi Environment:**

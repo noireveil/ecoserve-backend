@@ -103,7 +103,7 @@ func (h *ChatbotHandler) Triage(c *fiber.Ctx) error {
 }
 
 func (h *ChatbotHandler) callGeminiAPI(apiKey, userMessage string) (string, error) {
-	url := "[https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=)" + apiKey
+	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey
 
 	systemInstruction := `Berperanlah sebagai AI Diagnostik Teknis Senior.
 Anda WAJIB memberikan respons DALAM FORMAT JSON MURNI tanpa teks pembuka atau penutup.
