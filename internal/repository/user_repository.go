@@ -14,6 +14,8 @@ type UserRepository interface {
 	UpdateOTP(email, code string, expiresAt time.Time) error
 	Delete(id string) error
 	UpdateRole(id string, role string) error
+	FindUnscopedByEmail(email string) (*domain.User, error)
+	RestoreAndUpdate(email, fullName string) error
 }
 
 type userRepository struct {
@@ -53,4 +55,18 @@ func (r *userRepository) Delete(id string) error {
 
 func (r *userRepository) UpdateRole(id string, role string) error {
 	return r.db.Model(&domain.User{}).Where("id = ?", id).Update("role", role).Error
+}
+
+func (r *userRepository) FindUnscopedByEmail(email string) (*domain.User, error) {
+	var user domain.User
+	err := r.db.Unscoped().Where("email = ?", email).First(&user).Error
+	return &user, err
+}
+
+func (r *userRepository) RestoreAndUpdate(email, fullName string) error {
+	return r.db.Unscoped().Model(&domain.User{}).Where("email = ?", email).Updates(map[string]interface{}{
+		"deleted_at": gorm.Expr("NULL"),
+		"full_name":  fullName,
+		"role":       "customer",
+	}).Error
 }

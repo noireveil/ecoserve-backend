@@ -28,7 +28,7 @@ func NewUserUsecase(userRepo repository.UserRepository) UserUsecase {
 }
 
 func (u *userUsecase) RequestOTP(fullName, email string) error {
-	user, err := u.userRepo.FindByEmail(email)
+	user, err := u.userRepo.FindUnscopedByEmail(email)
 	var targetName string
 
 	if err != nil {
@@ -47,7 +47,14 @@ func (u *userUsecase) RequestOTP(fullName, email string) error {
 			return err
 		}
 	} else {
-		targetName = user.FullName
+		if user.DeletedAt.Valid {
+			targetName = fullName
+			if errRestore := u.userRepo.RestoreAndUpdate(email, fullName); errRestore != nil {
+				return errRestore
+			}
+		} else {
+			targetName = user.FullName
+		}
 	}
 
 	otpCode, _ := utils.GenerateOTP()
