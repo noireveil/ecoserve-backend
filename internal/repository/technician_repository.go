@@ -36,13 +36,11 @@ func (r *technicianRepository) FindNearby(lon float64, lat float64, radiusKm int
 
 	radiusMeters := radiusKm * 1000
 
-	query := `
-		SELECT id, user_id, specialization, experience_years, rating, ST_AsText(location) as location, created_at, updated_at
-		FROM technicians
-		WHERE ST_DWithin(location::geography, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?)
-		ORDER BY rating DESC
-	`
+	err := r.db.Preload("User").
+		Select("id, user_id, specialization, experience_years, rating, ST_AsText(location) as location, created_at, updated_at").
+		Where("ST_DWithin(location::geography, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?)", lon, lat, radiusMeters).
+		Order("rating DESC").
+		Find(&technicians).Error
 
-	err := r.db.Raw(query, lon, lat, radiusMeters).Scan(&technicians).Error
 	return technicians, err
 }
