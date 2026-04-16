@@ -15,18 +15,7 @@ func buildDigitBoxes(code string) string {
 	var sb strings.Builder
 	for _, ch := range code {
 		sb.WriteString(fmt.Sprintf(`
-                        <td align="center" style="padding: 0 4px;">
-                          <table border="0" cellpadding="0" cellspacing="0">
-                            <tr>
-                              <td align="center" width="48" height="56"
-                                style="width: 48px; height: 56px; background-color: #F9FAFB; border: 1px solid #D1D5DB; border-radius: 8px;
-                                       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 28px;
-                                       font-weight: 700; color: #111827; text-align: center; vertical-align: middle;">
-                                %c
-                              </td>
-                            </tr>
-                          </table>
-                        </td>`, ch))
+              <span style="display:inline-block; width:48px; height:56px; line-height:56px; background-color:#F9FAFB; border:1px solid #D1D5DB; border-radius:8px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:28px; font-weight:700; color:#111827; text-align:center; margin:0 4px;">%c</span>`, ch))
 	}
 	return sb.String()
 }
@@ -81,12 +70,8 @@ func SendEmailOTP(targetEmail string, name string, code string) error {
 
               <table border="0" cellpadding="0" cellspacing="0" width="100%%">
                 <tr>
-                  <td align="center">
-                    <table border="0" cellpadding="0" cellspacing="0">
-                      <tr>
-%s
-                      </tr>
-                    </table>
+                  <td align="center" style="padding: 10px 0;">
+                    %s
                   </td>
                 </tr>
               </table>
