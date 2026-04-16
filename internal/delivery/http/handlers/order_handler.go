@@ -13,6 +13,7 @@ type OrderHandler struct {
 }
 
 type CreateOrderPayload struct {
+	TechnicianID       string `json:"technician_id" example:"(Opsional) uuid-teknisi"`
 	DeviceCategory     string `json:"device_category" example:"Pendingin & Komersial"`
 	ProblemDescription string `json:"problem_description" example:"Kompresor mati dan berasap"`
 }
@@ -71,12 +72,12 @@ func (h *OrderHandler) GetMyOrders(c *fiber.Ctx) error {
 }
 
 // @Summary Membuat Pesanan Perbaikan
-// @Description Menginisiasi pesanan servis elektronik baru oleh Konsumen.
+// @Description Menginisiasi pesanan servis elektronik baru oleh Konsumen. Bisa diikat langsung ke teknisi atau dibiarkan kosong untuk pesanan publik.
 // @Tags Orders
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body CreateOrderPayload true "Data Kerusakan"
+// @Param request body CreateOrderPayload true "Data Kerusakan dan Booking Opsional"
 // @Success 201 {object} map[string]interface{}
 // @Router /api/orders/ [post]
 func (h *OrderHandler) Create(c *fiber.Ctx) error {
@@ -96,8 +97,18 @@ func (h *OrderHandler) Create(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format User ID tidak valid"})
 	}
 
+	var techIDPtr *uuid.UUID
+	if req.TechnicianID != "" {
+		tID, errParse := uuid.Parse(req.TechnicianID)
+		if errParse != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format Technician ID tidak valid"})
+		}
+		techIDPtr = &tID
+	}
+
 	order := domain.Order{
 		CustomerID:         customerID,
+		TechnicianID:       techIDPtr,
 		DeviceCategory:     req.DeviceCategory,
 		ProblemDescription: req.ProblemDescription,
 	}
