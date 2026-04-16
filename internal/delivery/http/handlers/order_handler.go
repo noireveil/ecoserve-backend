@@ -13,9 +13,11 @@ type OrderHandler struct {
 }
 
 type CreateOrderPayload struct {
-	TechnicianID       string `json:"technician_id" example:"(Opsional) uuid-teknisi"`
-	DeviceCategory     string `json:"device_category" example:"Pendingin & Komersial"`
-	ProblemDescription string `json:"problem_description" example:"Kompresor mati dan berasap"`
+	TechnicianID       string  `json:"technician_id" example:"(Opsional) uuid-teknisi"`
+	DeviceCategory     string  `json:"device_category" example:"Pendingin & Komersial"`
+	ProblemDescription string  `json:"problem_description" example:"Kompresor mati dan berasap"`
+	CustomerLatitude   float64 `json:"customer_latitude"`
+	CustomerLongitude  float64 `json:"customer_longitude"`
 }
 
 func NewOrderHandler(app *fiber.App, usecase usecase.OrderUsecase) {
@@ -111,6 +113,8 @@ func (h *OrderHandler) Create(c *fiber.Ctx) error {
 		TechnicianID:       techIDPtr,
 		DeviceCategory:     req.DeviceCategory,
 		ProblemDescription: req.ProblemDescription,
+		CustomerLatitude:   req.CustomerLatitude,
+		CustomerLongitude:  req.CustomerLongitude,
 	}
 
 	if err := h.orderUsecase.CreateOrder(&order); err != nil {

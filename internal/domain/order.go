@@ -14,6 +14,8 @@ type Order struct {
 	Technician         *Technician `gorm:"foreignKey:TechnicianID"`
 	DeviceCategory     string      `gorm:"type:varchar(100);not null"`
 	ProblemDescription string      `gorm:"type:text;not null"`
+	CustomerLatitude   float64     `gorm:"type:decimal(9,6)"`
+	CustomerLongitude  float64     `gorm:"type:decimal(9,6)"`
 	Status             string      `gorm:"type:varchar(50);not null;default:'PENDING'"`
 	EWasteSavedKg      float64     `gorm:"type:decimal(10,2);default:0.00"`
 	PhotoProofURL      *string     `gorm:"type:text"`
