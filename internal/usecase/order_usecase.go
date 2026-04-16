@@ -21,6 +21,7 @@ type OrderUsecase interface {
 	GetUserOrders(userID string) ([]domain.Order, error)
 	CompleteOrder(orderID string, req CompleteOrderRequest) error
 	GetIncomingOrders() ([]domain.Order, error)
+	AcceptOrder(orderID string, userID string) error
 }
 
 type orderUsecase struct {
@@ -41,6 +42,10 @@ func (u *orderUsecase) GetUserOrders(userID string) ([]domain.Order, error) {
 
 func (u *orderUsecase) GetIncomingOrders() ([]domain.Order, error) {
 	return u.orderRepo.FindIncomingOrders()
+}
+
+func (u *orderUsecase) AcceptOrder(orderID string, userID string) error {
+	return u.orderRepo.AcceptOrder(orderID, userID)
 }
 
 func (u *orderUsecase) CompleteOrder(orderID string, req CompleteOrderRequest) error {

@@ -1,60 +1,55 @@
 # EcoServe Backend
 
-EcoServe adalah platform manajemen siklus hidup elektronik yang dirancang untuk memperpanjang usia perangkat dan menekan pertumbuhan limbah elektronik (*e-waste*) dalam kerangka ekonomi sirkular. API ini dibangun menggunakan **Go** dengan fokus pada performa tinggi dan akurasi data geospasial.
+EcoServe adalah platform manajemen siklus hidup elektronik yang dirancang untuk memperpanjang usia perangkat dan menekan pertumbuhan limbah elektronik (*e-waste*) dalam ekosistem ekonomi sirkular. API ini dibangun menggunakan **Go** dengan fokus pada efisiensi performa, skalabilitas, dan akurasi data geospasial.
 
-## Overview Fitur
+## Fitur Utama
 
-* **Digital Product Passport (DPP):** Registrasi dan pencatatan riwayat perangkat elektronik konsumen secara digital untuk memantau status garansi dan rekam jejak perbaikan.
-* **AI Triage System:** Integrasi **Gemini 2.5 Flash** untuk mendiagnosis kerusakan perangkat secara otomatis dengan mekanisme *Confidence Gate* untuk meminimalkan halusinasi AI.
-* **Geospatial Search:** Memanfaatkan ekstensi **PostGIS** untuk melakukan pencarian teknisi terdekat berdasarkan radius geografis secara akurat.
-* **Automated E-Waste Tracker:** Kalkulasi otomatis penghematan emisi dan limbah menggunakan algoritma **EPA WARM v15** setiap kali transaksi selesai.
-* **Anti-Fraud & Security Layer:** Protokol keamanan yang mencakup *GPS Locking*, bukti visual (*Photo Proof*), serta **Fiber Rate Limiter** untuk perlindungan terhadap serangan DDoS dan spam API.
-* **Secure Authentication:** Autentikasi nir-sandi melalui **Email OTP** yang diintegrasikan via **Mailjet API** dan otorisasi berbasis **JWT**.
+* **Digital Product Passport (DPP):** Transparansi siklus hidup perangkat melalui pencatatan riwayat digital yang komprehensif.
+* **AI-Driven Triage System:** Diagnosis kerusakan otomatis berbasis **Gemini 2.5 Flash** dengan integrasi *Confidence Gate* untuk menjamin akurasi hasil analisis.
+* **Geospatial Service Engine:** Optimasi pencarian teknisi terdekat memanfaatkan **PostGIS** dan sistem koordinat presisi untuk kebutuhan navigasi.
+* **Advanced Order Management:** Manajemen alur kerja layanan perbaikan yang terintegrasi, mencakup fitur *real-time tracking* koordinat konsumen dan sistem *Accept Order* untuk teknisi.
+* **Automated Impact Tracking:** Kalkulasi metrik lingkungan otomatis berdasarkan algoritma **EPA WARM v15** untuk mengukur penghematan limbah elektronik.
+* **Industrial Security Layer:** Perlindungan data melalui autentikasi **JWT**, enkripsi sesi, dan mitigasi *fraud* menggunakan verifikasi geospasial (*GPS Locking*).
 
-## Tumpukan Teknologi (Tech Stack)
+## Tumpukan Teknologi
 
-* **Language:** Go (Golang) 1.25+
-* **Web Framework:** Fiber v2
-* **Database:** PostgreSQL (Hosted on Supabase) + PostGIS
-* **AI Engine:** Google Gemini 2.5 Flash
-* **Email Service:** Mailjet API (HTTP Protocol)
-* **Deployment:** Render (Backend) & Vercel (Frontend)
+* **Core:** Go (Golang) 1.25+ & Fiber v2 Framework
+* **Database:** PostgreSQL with PostGIS Extension (Hosted on Supabase)
+* **Artificial Intelligence:** Google Gemini 2.5 Flash API
+* **Authentication:** JWT-based Secure Authorization
+* **Documentation:** OpenAPI (Swagger) Standard
 
-## Arsitektur Proyek
+## Arsitektur Sistem
 
-Mengadopsi *Layered Architecture* untuk memastikan pemisahan logika bisnis dari infrastruktur:
+Proyek ini mengimplementasikan *Layered Architecture* untuk memisahkan logika bisnis dari lapisan infrastruktur, memastikan kode mudah diuji dan dikembangkan:
 
-* `cmd/api/`: Titik masuk utama aplikasi (*entry point*) dan konfigurasi *middleware*.
-* `internal/domain/`: Definisi entitas, model basis data, dan Digital Product Passport (DPP).
-* `internal/usecase/`: Logika bisnis inti (Kalkulasi emisi, *AI Prompt Engineering*, manajemen OTP).
-* `internal/repository/`: Lapisan akses data (GORM & SQL Spasial).
-* `internal/delivery/http/`: Handler REST API dan *middleware* keamanan (*Rate Limiting*, CORS).
-* `pkg/utils/`: Utilitas pembantu (JWT, Mailjet API Integration, OTP Generator).
+* `cmd/api/`: *Entry point* aplikasi dan konfigurasi *middleware*.
+* `internal/domain/`: Definisi entitas dan skema data inti.
+* `internal/usecase/`: Implementasi logika bisnis dan aturan sistem.
+* `internal/repository/`: Abstraksi akses basis data dan kueri geospasial.
+* `internal/delivery/`: Lapisan komunikasi HTTP dan API *handlers*.
 
-## Dokumentasi API (OpenAPI)
+## Dokumentasi API
 
-Sesuai standar SRS, dokumentasi API tersedia secara interaktif melalui Swagger UI:
-`http://localhost:3000/swagger/`
+Dokumentasi API tersedia secara interaktif dan dapat diakses melalui Swagger UI:
+`https://ecoserve-api.onrender.com/swagger/index.html`
 
-## Panduan Setup Lokal
+## Panduan Instalasi Lokal
 
-1.  **Clone Repositori:**
+1.  **Persiapan Repositori:**
     ```bash
     git clone https://github.com/noireveil/ecoserve-backend.git
     cd ecoserve-backend
     ```
 2.  **Konfigurasi Environment:**
-    Salin fail `.env.example` menjadi `.env` dan isi variabel yang diperlukan:
-    * `MAILJET_API_KEY` & `MAILJET_SECRET_KEY`
-    * `GEMINI_API_KEY`
-    * Database Credentials (PostgreSQL)
-3.  **Sinkronisasi Dependensi:**
+    Lengkapi fail `.env` pada direktori *root* dengan kredensial yang diperlukan (Database, JWT Secret, dan Gemini API Key).
+3.  **Manajemen Dependensi:**
     ```bash
     go mod tidy
     ```
-4.  **Jalankan Server:**
+4.  **Menjalankan Aplikasi:**
     ```bash
     go run cmd/api/main.go
     ```
-5.  **Verifikasi:**
-    Akses `http://localhost:3000/health` untuk memastikan konektivitas API dan basis data telah aktif.
+5.  **Verifikasi Sistem:**
+    Pastikan layanan aktif dengan mengakses *endpoint* kesehatan sistem di `http://localhost:3000/health`.

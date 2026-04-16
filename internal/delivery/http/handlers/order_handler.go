@@ -27,6 +27,7 @@ func NewOrderHandler(app *fiber.App, usecase usecase.OrderUsecase) {
 	api.Post("/", middleware.Protected(), handler.Create)
 	api.Get("/", middleware.Protected(), handler.GetMyOrders)
 	api.Get("/incoming", middleware.Protected(), handler.GetIncomingOrders)
+	api.Put("/:id/accept", middleware.Protected(), handler.Accept)
 	api.Put("/:id/complete", middleware.Protected(), handler.Complete)
 }
 
@@ -124,6 +125,36 @@ func (h *OrderHandler) Create(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "Pesanan layanan berhasil dibuat",
 		"data":    order,
+	})
+}
+
+// @Summary Menerima Pesanan Masuk
+// @Description Teknisi mengambil pesanan yang berstatus PENDING (Merubah status menjadi ACCEPTED).
+// @Tags Orders
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "ID Pesanan (UUID)"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/orders/{id}/accept [put]
+func (h *OrderHandler) Accept(c *fiber.Ctx) error {
+	orderID := c.Params("id")
+
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User ID tidak valid"})
+	}
+
+	role, _ := c.Locals("role").(string)
+	if role != "technician" {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Hanya teknisi yang berhak mengambil pesanan"})
+	}
+
+	if err := h.orderUsecase.AcceptOrder(orderID, userIDStr); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Pesanan berhasil diambil, silakan menuju ke lokasi konsumen.",
 	})
 }
 

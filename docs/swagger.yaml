@@ -58,6 +58,10 @@ definitions:
     type: object
   internal_delivery_http_handlers.CreateOrderPayload:
     properties:
+      customer_latitude:
+        type: number
+      customer_longitude:
+        type: number
       device_category:
         example: Pendingin & Komersial
         type: string
@@ -264,6 +268,29 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Membuat Pesanan Perbaikan
+      tags:
+      - Orders
+  /api/orders/{id}/accept:
+    put:
+      description: Teknisi mengambil pesanan yang berstatus PENDING (Merubah status
+        menjadi ACCEPTED).
+      parameters:
+      - description: ID Pesanan (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Menerima Pesanan Masuk
       tags:
       - Orders
   /api/orders/{id}/complete:

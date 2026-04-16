@@ -14,6 +14,7 @@ type OrderRepository interface {
 	FindByUserID(userID string) ([]domain.Order, error)
 	CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved float64) error
 	FindIncomingOrders() ([]domain.Order, error)
+	AcceptOrder(orderID string, userID string) error
 }
 
 type orderRepository struct {
@@ -49,6 +50,28 @@ func (r *orderRepository) FindIncomingOrders() ([]domain.Order, error) {
 		Where("technician_id IS NULL").
 		Order("created_at desc").Find(&orders).Error
 	return orders, err
+}
+
+func (r *orderRepository) AcceptOrder(orderID string, userID string) error {
+	var tech domain.Technician
+	if err := r.db.Where("user_id = ?", userID).First(&tech).Error; err != nil {
+		return fmt.Errorf("akses ditolak: profil teknisi tidak ditemukan")
+	}
+
+	result := r.db.Model(&domain.Order{}).Where("id = ? AND status = ?", orderID, "PENDING").Updates(map[string]interface{}{
+		"technician_id": tech.ID,
+		"status":        "ACCEPTED",
+	})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("pesanan tidak tersedia atau sudah diambil oleh teknisi lain")
+	}
+
+	return nil
 }
 
 func (r *orderRepository) CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved float64) error {

@@ -246,6 +246,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/orders/{id}/accept": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Teknisi mengambil pesanan yang berstatus PENDING (Merubah status menjadi ACCEPTED).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Menerima Pesanan Masuk",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Pesanan (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/orders/{id}/complete": {
             "put": {
                 "security": [
@@ -608,6 +643,12 @@ const docTemplate = `{
         "internal_delivery_http_handlers.CreateOrderPayload": {
             "type": "object",
             "properties": {
+                "customer_latitude": {
+                    "type": "number"
+                },
+                "customer_longitude": {
+                    "type": "number"
+                },
                 "device_category": {
                     "type": "string",
                     "example": "Pendingin \u0026 Komersial"
