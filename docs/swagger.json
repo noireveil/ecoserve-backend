@@ -701,11 +701,11 @@
             "properties": {
                 "email": {
                     "type": "string",
-                    "example": "yasyfi7@gmail.com"
+                    "example": "eco.security@ecoserve.com"
                 },
                 "full_name": {
                     "type": "string",
-                    "example": "Muhammad Yasyfi"
+                    "example": "EcoServe Tester"
                 }
             }
         },
@@ -735,7 +735,7 @@
                 },
                 "email": {
                     "type": "string",
-                    "example": "yasyfi7@gmail.com"
+                    "example": "ecosecurity@ecoserve.com"
                 }
             }
         }

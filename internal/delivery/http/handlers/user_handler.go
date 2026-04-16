@@ -14,12 +14,12 @@ type UserHandler struct {
 }
 
 type RequestOTPPayload struct {
-	FullName string `json:"full_name" example:"Muhammad Yasyfi"`
-	Email    string `json:"email" example:"yasyfi7@gmail.com"`
+	FullName string `json:"full_name" example:"EcoServe Tester"`
+	Email    string `json:"email" example:"eco.security@ecoserve.com"`
 }
 
 type VerifyOTPPayload struct {
-	Email string `json:"email" example:"yasyfi7@gmail.com"`
+	Email string `json:"email" example:"ecosecurity@ecoserve.com"`
 	Code  string `json:"code" example:"123456"`
 }
 

@@ -708,11 +708,11 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string",
-                    "example": "yasyfi7@gmail.com"
+                    "example": "eco.security@ecoserve.com"
                 },
                 "full_name": {
                     "type": "string",
-                    "example": "Muhammad Yasyfi"
+                    "example": "EcoServe Tester"
                 }
             }
         },
@@ -742,7 +742,7 @@ const docTemplate = `{
                 },
                 "email": {
                     "type": "string",
-                    "example": "yasyfi7@gmail.com"
+                    "example": "ecosecurity@ecoserve.com"
                 }
             }
         }

@@ -102,10 +102,10 @@ definitions:
   internal_delivery_http_handlers.RequestOTPPayload:
     properties:
       email:
-        example: yasyfi7@gmail.com
+        example: eco.security@ecoserve.com
         type: string
       full_name:
-        example: Muhammad Yasyfi
+        example: EcoServe Tester
         type: string
     type: object
   internal_delivery_http_handlers.TriageRequest:
@@ -126,7 +126,7 @@ definitions:
         example: "123456"
         type: string
       email:
-        example: yasyfi7@gmail.com
+        example: ecosecurity@ecoserve.com
         type: string
     type: object
 info:
