@@ -8,7 +8,28 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 )
+
+func buildDigitBoxes(code string) string {
+	var sb strings.Builder
+	for _, ch := range code {
+		sb.WriteString(fmt.Sprintf(`
+                        <td align="center" style="padding: 0 4px;">
+                          <table border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td align="center" width="48" height="56"
+                                style="width: 48px; height: 56px; background-color: #F9FAFB; border: 1px solid #D1D5DB; border-radius: 8px;
+                                       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 28px;
+                                       font-weight: 700; color: #111827; text-align: center; vertical-align: middle;">
+                                %c
+                              </td>
+                            </tr>
+                          </table>
+                        </td>`, ch))
+	}
+	return sb.String()
+}
 
 func SendEmailOTP(targetEmail string, name string, code string) error {
 	apiKey := os.Getenv("MAILJET_API_KEY")
@@ -18,68 +39,92 @@ func SendEmailOTP(targetEmail string, name string, code string) error {
 	if apiKey == "" || secretKey == "" || senderEmail == "" {
 		return errors.New("kredensial Mailjet tidak terdefinisi pada variabel lingkungan")
 	}
-
 	if name == "" {
 		name = "Pengguna"
 	}
 
-	htmlBody := fmt.Sprintf(`
-<!DOCTYPE html>
+	digitBoxes := buildDigitBoxes(code)
+
+	htmlBody := fmt.Sprintf(`<!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Kode Verifikasi EcoServe</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f4f7f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
-    <table border="0" cellpadding="0" cellspacing="0" width="100%%" style="background-color: #f4f7f6; padding: 50px 20px;">
-        <tr>
-            <td align="center">
-                <table border="0" cellpadding="0" cellspacing="0" width="100%%" style="max-width: 480px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);">
+<body style="margin:0;padding:0;background-color:#F3F4F6;
+             font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
 
-                    <tr>
-                        <td align="center" style="background: #059669; background: linear-gradient(135deg, #059669 0%%, #34d399 100%%); padding: 45px 20px;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">EcoServe</h1>
-                            <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 13px; letter-spacing: 3px; text-transform: uppercase;">Kode Keamanan</p>
-                        </td>
-                    </tr>
+  <table border="0" cellpadding="0" cellspacing="0" width="100%%"
+         style="background-color:#F3F4F6;padding:60px 20px;">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%%"
+               style="max-width:500px;background-color:#FFFFFF;border-radius:12px;box-shadow:0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);overflow:hidden;">
 
-                    <tr>
-                        <td style="padding: 40px 35px;">
-                            <p style="margin: 0 0 20px 0; font-size: 16px; color: #1f2937; line-height: 1.6;">
-                                Halo <strong>%s</strong>,
-                            </p>
-                            <p style="margin: 0 0 30px 0; font-size: 16px; color: #4b5563; line-height: 1.6;">
-                                Seseorang mencoba masuk ke akun EcoServe Anda. Gunakan kode verifikasi di bawah ini untuk melanjutkan proses:
-                            </p>
-
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%%">
-                                <tr>
-                                    <td align="center" style="background-color: #ecfdf5; border-radius: 12px; padding: 25px;">
-                                        <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 42px; font-weight: 700; color: #047857; letter-spacing: 8px;">%s</span>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <p style="margin: 30px 0 0 0; font-size: 14px; color: #6b7280; line-height: 1.6;">
-                                Kode ini akan kedaluwarsa dalam waktu <strong>5 menit</strong>. Jika Anda tidak merasa melakukan permintaan untuk masuk, Anda dapat mengabaikan surel ini dengan aman.
-                            </p>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td align="center" style="background-color: #f9fafb; padding: 25px; border-top: 1px solid #f3f4f6;">
-                            <p style="margin: 0; font-size: 12px; color: #9ca3af; line-height: 1.5;">
-                                &copy; 2026 EcoServe.<br>Platform Ekonomi Sirkular.
-                            </p>
-                        </td>
-                    </tr>
-
-                </table>
+          <tr>
+            <td align="center" style="padding:40px 40px 20px;">
+              <span style="font-size:24px;font-weight:800;letter-spacing:-0.5px;">
+                <span style="color:#00C896;">Eco</span><span style="color:#111827;">Serve</span>
+              </span>
             </td>
-        </tr>
-    </table>
+          </tr>
+
+          <tr>
+            <td style="padding:20px 40px 40px;">
+              <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#111827;">
+                Halo %s,
+              </p>
+              <p style="margin:0 0 32px;font-size:15px;color:#4B5563;line-height:1.6;">
+                Seseorang sedang mencoba mengakses akun EcoServe Anda. Gunakan kode keamanan di bawah ini untuk melanjutkan proses verifikasi:
+              </p>
+
+              <table border="0" cellpadding="0" cellspacing="0" width="100%%">
+                <tr>
+                  <td align="center">
+                    <table border="0" cellpadding="0" cellspacing="0">
+                      <tr>
+%s
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:32px 0 0;font-size:14px;color:#6B7280;text-align:center;">
+                Kode ini berlaku selama <strong style="color:#111827;">5 menit</strong>.
+              </p>
+
+              <div style="margin-top:32px;padding-top:24px;border-top:1px solid #E5E7EB;">
+                <p style="margin:0;font-size:13px;color:#9CA3AF;line-height:1.5;text-align:center;">
+                  Jika Anda tidak merasa melakukan permintaan ini, abaikan surel ini. Kata sandi dan akun Anda tetap aman.
+                </p>
+              </div>
+
+            </td>
+          </tr>
+
+          <tr>
+            <td style="background-color:#F9FAFB;padding:24px 40px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%%">
+                <tr>
+                  <td align="center">
+                    <p style="margin:0;font-size:12px;color:#9CA3AF;">
+                      &copy; 2026 EcoServe. Platform Ekonomi Sirkular.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
 </body>
-</html>`, name, code)
+</html>`, name, digitBoxes)
 
 	payload := map[string]interface{}{
 		"Messages": []map[string]interface{}{
@@ -89,10 +134,7 @@ func SendEmailOTP(targetEmail string, name string, code string) error {
 					"Name":  "EcoServe Security",
 				},
 				"To": []map[string]string{
-					{
-						"Email": targetEmail,
-						"Name":  name,
-					},
+					{"Email": targetEmail, "Name": name},
 				},
 				"Subject":  "Kode Autentikasi EcoServe",
 				"HTMLPart": htmlBody,
@@ -122,7 +164,8 @@ func SendEmailOTP(targetEmail string, name string, code string) error {
 
 	if resp.StatusCode >= 400 {
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("gagal mengirim surel via Mailjet: status %d - %s", resp.StatusCode, string(bodyBytes))
+		return fmt.Errorf("gagal mengirim surel via Mailjet: status %d - %s",
+			resp.StatusCode, string(bodyBytes))
 	}
 
 	return nil
