@@ -449,6 +449,23 @@ paths:
       summary: Cari Teknisi Terdekat
       tags:
       - Technicians
+  /api/technicians/performance:
+    get:
+      description: Mengambil agregasi data performa (Rating, Total Perbaikan, dan
+        Total CO2 yang diselamatkan) dari teknisi yang sedang login.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mendapatkan Metrik Performa Teknisi
+      tags:
+      - Technicians
   /api/users/auth/logout:
     post:
       description: Mencabut sesi pengguna dengan menghapus cookie JWT dari browser.

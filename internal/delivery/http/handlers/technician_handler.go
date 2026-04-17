@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/noireveil/ecoserve-backend/internal/delivery/http/middleware"
 	"github.com/noireveil/ecoserve-backend/internal/domain"
 	"github.com/noireveil/ecoserve-backend/internal/usecase"
 )
@@ -24,6 +25,7 @@ func NewTechnicianHandler(app *fiber.App, usecase usecase.TechnicianUsecase) {
 	api := app.Group("/api/technicians")
 	api.Post("/", handler.Register)
 	api.Get("/nearby", handler.GetNearby)
+	api.Get("/performance", middleware.Protected(), handler.GetPerformance)
 }
 
 // @Summary Mendaftarkan Teknisi Baru
@@ -68,4 +70,33 @@ func (h *TechnicianHandler) GetNearby(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": technicians})
+}
+
+// @Summary Mendapatkan Metrik Performa Teknisi
+// @Description Mengambil agregasi data performa (Rating, Total Perbaikan, dan Total CO2 yang diselamatkan) dari teknisi yang sedang login.
+// @Tags Technicians
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /api/technicians/performance [get]
+func (h *TechnicianHandler) GetPerformance(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User ID tidak valid"})
+	}
+
+	role, _ := c.Locals("role").(string)
+	if role != "technician" {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Akses ditolak: Hanya untuk teknisi"})
+	}
+
+	perf, err := h.techUsecase.GetPerformance(userIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Berhasil mengambil metrik performa teknisi",
+		"data":    perf,
+	})
 }

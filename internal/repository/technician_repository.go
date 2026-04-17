@@ -9,6 +9,7 @@ import (
 type TechnicianRepository interface {
 	Create(technician *domain.Technician, lon float64, lat float64) error
 	FindNearby(lon float64, lat float64, radiusKm int) ([]domain.Technician, error)
+	GetPerformanceByUserID(userID string) (float32, int, float64, error)
 }
 
 type technicianRepository struct {
@@ -43,4 +44,25 @@ func (r *technicianRepository) FindNearby(lon float64, lat float64, radiusKm int
 		Find(&technicians).Error
 
 	return technicians, err
+}
+
+func (r *technicianRepository) GetPerformanceByUserID(userID string) (float32, int, float64, error) {
+	var result struct {
+		Rating       float32
+		TotalRepairs int
+		TotalCo2     float64
+	}
+
+	err := r.db.Table("technicians").
+		Select("technicians.rating, COUNT(orders.id) as total_repairs, COALESCE(SUM(orders.e_waste_saved_kg), 0) as total_co2").
+		Joins("LEFT JOIN orders ON orders.technician_id = technicians.id AND orders.status = ?", domain.OrderStatusCompleted).
+		Where("technicians.user_id = ?", userID).
+		Group("technicians.id").
+		Scan(&result).Error
+
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	return result.Rating, result.TotalRepairs, result.TotalCo2, nil
 }

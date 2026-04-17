@@ -466,6 +466,32 @@
                 }
             }
         },
+        "/api/technicians/performance": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengambil agregasi data performa (Rating, Total Perbaikan, dan Total CO2 yang diselamatkan) dari teknisi yang sedang login.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Technicians"
+                ],
+                "summary": "Mendapatkan Metrik Performa Teknisi",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/auth/logout": {
             "post": {
                 "description": "Mencabut sesi pengguna dengan menghapus cookie JWT dari browser.",
