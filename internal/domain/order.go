@@ -6,6 +6,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type OrderStatus string
+
+const (
+	OrderStatusPending   OrderStatus = "PENDING"
+	OrderStatusAccepted  OrderStatus = "ACCEPTED"
+	OrderStatusCompleted OrderStatus = "COMPLETED"
+)
+
 type Order struct {
 	ID                 uuid.UUID   `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
 	CustomerID         uuid.UUID   `gorm:"type:uuid;not null"`
@@ -16,7 +24,7 @@ type Order struct {
 	ProblemDescription string      `gorm:"type:text;not null"`
 	CustomerLatitude   float64     `gorm:"type:decimal(9,6)"`
 	CustomerLongitude  float64     `gorm:"type:decimal(9,6)"`
-	Status             string      `gorm:"type:varchar(50);not null;default:'PENDING'"`
+	Status             OrderStatus `gorm:"type:varchar(50);not null;default:'PENDING'"`
 	EWasteSavedKg      float64     `gorm:"type:decimal(10,2);default:0.00"`
 	PhotoProofURL      *string     `gorm:"type:text"`
 	GPSLockCoord       *string     `gorm:"type:geometry(Point,4326)"`

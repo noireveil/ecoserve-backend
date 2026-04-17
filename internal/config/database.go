@@ -54,6 +54,7 @@ func ConnectDB() {
 		&domain.DigitalProductPassport{},
 		&domain.AIDiagnosisLog{},
 		&domain.ImpactTracker{},
+		&domain.Review{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database schema: \n", err)

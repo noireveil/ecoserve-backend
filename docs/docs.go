@@ -328,6 +328,73 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/reviews/order/{order_id}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Konsumen memberikan rating (1-5) dan komentar untuk teknisi setelah pesanan selesai. Sistem akan otomatis menghitung ulang rata-rata rating teknisi dengan fitur keamanan Anti-Spam.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Memberikan Ulasan Teknisi",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Pesanan (UUID)",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data Ulasan",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_delivery_http_handlers.ReviewRequestPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Berhasil memberikan ulasan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error validasi (rating tidak valid, pesanan belum selesai, dll)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Akses ditolak (belum login atau token tidak valid)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/technicians/": {
             "post": {
                 "description": "Menambahkan data teknisi baru beserta titik koordinat operasinya.",
@@ -734,6 +801,19 @@ const docTemplate = `{
                 "full_name": {
                     "type": "string",
                     "example": "EcoServe Tester"
+                }
+            }
+        },
+        "internal_delivery_http_handlers.ReviewRequestPayload": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Teknisi sangat profesional dan jujur!"
+                },
+                "rating": {
+                    "type": "integer",
+                    "example": 5
                 }
             }
         },

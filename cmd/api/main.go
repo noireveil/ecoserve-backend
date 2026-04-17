@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,8 +29,7 @@ import (
 // @in cookie
 // @name jwt
 func main() {
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Println("Peringatan: Gagal memuat file .env, menggunakan variabel lingkungan sistem")
 	}
 
@@ -44,7 +45,6 @@ func main() {
 		AllowHeaders:     "Origin, Content-Type, Accept",
 	}))
 
-	// Konfigurasi Rate Limiter
 	authLimiter := limiter.New(limiter.Config{
 		Max:        3,
 		Expiration: 1 * time.Minute,
@@ -76,7 +76,6 @@ func main() {
 
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
-	// Health Check
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"status":  "success",
@@ -84,24 +83,24 @@ func main() {
 		})
 	})
 
-	// Inisialisasi Repositori
 	userRepo := repository.NewUserRepository(config.DB)
 	techRepo := repository.NewTechnicianRepository(config.DB)
 	orderRepo := repository.NewOrderRepository(config.DB)
 	deviceRepo := repository.NewDeviceRepository(config.DB)
+	reviewRepo := repository.NewReviewRepository(config.DB)
 
-	// Inisialisasi Usecase
 	userUsecase := usecase.NewUserUsecase(userRepo)
 	techUsecase := usecase.NewTechnicianUsecase(techRepo, userRepo)
 	orderUsecase := usecase.NewOrderUsecase(orderRepo)
 	deviceUsecase := usecase.NewDeviceUsecase(deviceRepo)
+	reviewUsecase := usecase.NewReviewUsecase(reviewRepo, orderRepo)
 
-	// Inisialisasi Handler
 	handlers.NewUserHandler(app, userUsecase)
 	handlers.NewTechnicianHandler(app, techUsecase)
 	handlers.NewOrderHandler(app, orderUsecase)
 	handlers.NewDeviceHandler(app, deviceUsecase)
 	handlers.NewChatbotHandler(app, techUsecase)
+	handlers.NewReviewHandler(app, reviewUsecase)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -111,6 +110,19 @@ func main() {
 		port = "3000"
 	}
 
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		_ = <-c
+		log.Println("Memulai proses graceful shutdown...")
+		_ = app.Shutdown()
+	}()
+
 	log.Println("Server REST API berjalan di port:", port)
-	log.Fatal(app.Listen(":" + port))
+	if err := app.Listen(":" + port); err != nil {
+		log.Panic(err)
+	}
+
+	log.Println("Proses pembersihan selesai. Server dimatikan.")
 }

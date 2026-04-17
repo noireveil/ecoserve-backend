@@ -108,6 +108,15 @@ definitions:
         example: EcoServe Tester
         type: string
     type: object
+  internal_delivery_http_handlers.ReviewRequestPayload:
+    properties:
+      comment:
+        example: Teknisi sangat profesional dan jujur!
+        type: string
+      rating:
+        example: 5
+        type: integer
+    type: object
   internal_delivery_http_handlers.TriageRequest:
     properties:
       latitude:
@@ -341,6 +350,52 @@ paths:
       summary: Mendapatkan Pesanan Masuk
       tags:
       - Orders
+  /api/reviews/order/{order_id}:
+    post:
+      consumes:
+      - application/json
+      description: Konsumen memberikan rating (1-5) dan komentar untuk teknisi setelah
+        pesanan selesai. Sistem akan otomatis menghitung ulang rata-rata rating teknisi
+        dengan fitur keamanan Anti-Spam.
+      parameters:
+      - description: ID Pesanan (UUID)
+        in: path
+        name: order_id
+        required: true
+        type: string
+      - description: Data Ulasan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_delivery_http_handlers.ReviewRequestPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Berhasil memberikan ulasan
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Error validasi (rating tidak valid, pesanan belum selesai,
+            dll)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Akses ditolak (belum login atau token tidak valid)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Memberikan Ulasan Teknisi
+      tags:
+      - Reviews
   /api/technicians/:
     post:
       consumes:

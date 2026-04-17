@@ -46,7 +46,7 @@ func (r *orderRepository) FindByUserID(userID string) ([]domain.Order, error) {
 func (r *orderRepository) FindIncomingOrders() ([]domain.Order, error) {
 	var orders []domain.Order
 	err := r.db.Preload("Customer").
-		Where("status = ?", "PENDING").
+		Where("status = ?", domain.OrderStatusPending).
 		Where("technician_id IS NULL").
 		Order("created_at desc").Find(&orders).Error
 	return orders, err
@@ -58,9 +58,9 @@ func (r *orderRepository) AcceptOrder(orderID string, userID string) error {
 		return fmt.Errorf("akses ditolak: profil teknisi tidak ditemukan")
 	}
 
-	result := r.db.Model(&domain.Order{}).Where("id = ? AND status = ?", orderID, "PENDING").Updates(map[string]interface{}{
+	result := r.db.Model(&domain.Order{}).Where("id = ? AND status = ?", orderID, domain.OrderStatusPending).Updates(map[string]interface{}{
 		"technician_id": tech.ID,
-		"status":        "ACCEPTED",
+		"status":        domain.OrderStatusAccepted,
 	})
 
 	if result.Error != nil {
@@ -78,7 +78,7 @@ func (r *orderRepository) CompleteWithAntiFraud(id string, photoURL string, lon 
 	point := fmt.Sprintf("SRID=4326;POINT(%f %f)", lon, lat)
 
 	result := r.db.Model(&domain.Order{}).Where("id = ?", id).Updates(map[string]interface{}{
-		"status":            "COMPLETED",
+		"status":            domain.OrderStatusCompleted,
 		"e_waste_saved_kg":  eWasteSaved,
 		"photo_proof_url":   photoURL,
 		"gps_lock_coord":    gorm.Expr("ST_GeomFromEWKT(?)", point),
