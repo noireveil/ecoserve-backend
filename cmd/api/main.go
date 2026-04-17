@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 	"os/signal"
@@ -37,6 +38,24 @@ func main() {
 
 	app := fiber.New(fiber.Config{
 		AppName: "EcoServe API v1.0",
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
+			var e *fiber.Error
+			if errors.As(err, &e) {
+				code = e.Code
+			}
+
+			log.Printf("[SERVER ERROR] Path: %s | Message: %v\n", c.Path(), err)
+
+			message := err.Error()
+			if code >= 500 {
+				message = "Terjadi gangguan pada sistem internal. Log telah dicatat dan tim kami sedang menanganinya."
+			}
+
+			return c.Status(code).JSON(fiber.Map{
+				"error": message,
+			})
+		},
 	})
 
 	app.Use(cors.New(cors.Config{
@@ -53,7 +72,7 @@ func main() {
 		},
 		LimitReached: func(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
-				"error": "Spam OTP terdeteksi. Silakan coba lagi dalam 1 menit.",
+				"error": "Spam terdeteksi. Silakan coba lagi dalam 1 menit.",
 			})
 		},
 	})
@@ -114,7 +133,7 @@ func main() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
-		_ = <-c
+		<-c
 		log.Println("Memulai proses graceful shutdown...")
 		_ = app.Shutdown()
 	}()

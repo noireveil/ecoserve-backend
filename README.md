@@ -1,55 +1,66 @@
-# EcoServe Backend
+# EcoServe Backend Engine
 
-EcoServe adalah platform manajemen siklus hidup elektronik yang dirancang untuk memperpanjang usia perangkat dan menekan pertumbuhan limbah elektronik (*e-waste*) dalam ekosistem ekonomi sirkular. API ini dibangun menggunakan **Go** dengan fokus pada efisiensi performa, skalabilitas, dan akurasi data geospasial.
+EcoServe adalah infrastruktur perangkat lunak *Enterprise-Ready* yang dirancang untuk mendigitalkan ekonomi sirkular dan memperpanjang usia perangkat elektronik. API ini menjembatani konsumen dan teknisi perbaikan melalui lapisan kecerdasan buatan, pemetaan geospasial presisi, dan pelacakan jejak karbon (EPA WARM v15).
 
-## Fitur Utama
+## 🚀 Core Architecture
 
-* **Digital Product Passport (DPP):** Transparansi siklus hidup perangkat melalui pencatatan riwayat digital yang komprehensif.
-* **AI-Driven Triage System:** Diagnosis kerusakan otomatis berbasis **Gemini 2.5 Flash** dengan integrasi *Confidence Gate* untuk menjamin akurasi hasil analisis.
-* **Geospatial Service Engine:** Optimasi pencarian teknisi terdekat memanfaatkan **PostGIS** dan sistem koordinat presisi untuk kebutuhan navigasi.
-* **Advanced Order Management:** Manajemen alur kerja layanan perbaikan yang terintegrasi, mencakup fitur *real-time tracking* koordinat konsumen dan sistem *Accept Order* untuk teknisi.
-* **Automated Impact Tracking:** Kalkulasi metrik lingkungan otomatis berdasarkan algoritma **EPA WARM v15** untuk mengukur penghematan limbah elektronik.
-* **Industrial Security Layer:** Perlindungan data melalui autentikasi **JWT**, enkripsi sesi, dan mitigasi *fraud* menggunakan verifikasi geospasial (*GPS Locking*).
+Sistem ini dibangun di atas fondasi **Domain-Driven Design** menggunakan bahasa **Go (Golang)**, memastikan skalabilitas tinggi, kemudahan pengujian, dan keterisolasian logika bisnis.
 
-## Tumpukan Teknologi
+* **Digital Product Passport (DPP):** Manajemen siklus hidup elektronik (*Electronic Lifecycle Management*) dengan rekam jejak kepemilikan dan spesifikasi material.
+* **AI-Driven Triage (Gemini 2.5 Flash):** Diagnosis otonom berbasis NLP dengan *Confidence Gate* algoritmik untuk menentukan kelayakan perbaikan mandiri (DIY) vs eskalasi ke teknisi ahli.
+* **Geospatial Matching Engine:** Kueri radius presisi menggunakan ekstensi **PostGIS** (`ST_DWithin`, `ST_MakePoint`) yang mengeleminasi beban komputasi Haversine di level aplikasi.
+* **ACID Transactional Integrity:** Operasi relasional kompleks (seperti *Order Completion*, kalkulasi *Impact Tracker*, dan agregasi *Review*) dibungkus dalam *Database Transactions* murni untuk menjamin konsistensi data (Zero Data Corruption).
+* **Industrial Security Protocol:**
+  * Implementasi otorisasi *Stateless* menggunakan **JWT (JSON Web Tokens)** dengan perlindungan **HTTPOnly & Secure Cookies** untuk memitigasi serangan XSS.
+  * Proteksi manipulasi data dengan **Centralized Error Masking** untuk mencegah kebocoran skema *database*.
+  * **Rate Limiting** tingkat *endpoint* untuk mencegah serangan *brute-force* dan *spamming*.
+* **Zero-Downtime Reliability:** Dilengkapi dengan rutinitas *Graceful Shutdown* untuk memastikan semua proses yang berjalan diselesaikan sebelum siklus hidup kontainer diakhiri.
 
-* **Core:** Go (Golang) 1.25+ & Fiber v2 Framework
-* **Database:** PostgreSQL with PostGIS Extension (Hosted on Supabase)
-* **Artificial Intelligence:** Google Gemini 2.5 Flash API
-* **Authentication:** JWT-based Secure Authorization
-* **Documentation:** OpenAPI (Swagger) Standard
+## 🛠 Tech Stack
 
-## Arsitektur Sistem
+* **Language:** Go 1.25+
+* **Web Framework:** Fiber v2 (Express-like, dialihkan untuk performa tinggi)
+* **Database:** PostgreSQL terskala awan (Supabase) + PostGIS
+* **ORM:** GORM v1.31
+* **AI & NLP:** Google Gemini 2.5 Flash REST API
+* **Communication:** Mailjet API (Transactional Email)
+* **Documentation:** Swaggo (OpenAPI/Swagger 2.0)
 
-Proyek ini mengimplementasikan *Layered Architecture* untuk memisahkan logika bisnis dari lapisan infrastruktur, memastikan kode mudah diuji dan dikembangkan:
+## 📖 API Documentation
 
-* `cmd/api/`: *Entry point* aplikasi dan konfigurasi *middleware*.
-* `internal/domain/`: Definisi entitas dan skema data inti.
-* `internal/usecase/`: Implementasi logika bisnis dan aturan sistem.
-* `internal/repository/`: Abstraksi akses basis data dan kueri geospasial.
-* `internal/delivery/`: Lapisan komunikasi HTTP dan API *handlers*.
+Referensi interaktif dan kontrak data tersedia secara publik melalui antarmuka Swagger UI:
+👉 **[EcoServe API Documentation](https://ecoserve-api.onrender.com/swagger/index.html)**
 
-## Dokumentasi API
+## ⚙️ Panduan Inisialisasi Lingkungan Lokal
 
-Dokumentasi API tersedia secara interaktif dan dapat diakses melalui Swagger UI:
-`https://ecoserve-api.onrender.com/swagger/index.html`
+Infrastruktur pendukung disediakan menggunakan Docker untuk standarisasi pengembangan.
 
-## Panduan Instalasi Lokal
+1. **Persiapan Repositori**
+   ```bash
+   git clone https://github.com/noireveil/ecoserve-backend.git
+   cd ecoserve-backend
+   ```
+2. **Konfigurasi Environment**
+   Salin fail referensi lingkungan dan sesuaikan variabel kunci.
+   ```bash
+   cp .env.example .env
+   ```
+3. **Instalasi Dependensi**
+   ```bash
+   go mod tidy
+   ```
+4. **Membangun Dokumentasi Swagger**
+   ```bash
+   swag init -g cmd/api/main.go --parseDependency --parseInternal
+   ```
+5. **Menjalankan Engine (Development)**
+   ```bash
+   go run cmd/api/main.go
+   ```
 
-1.  **Persiapan Repositori:**
-    ```bash
-    git clone https://github.com/noireveil/ecoserve-backend.git
-    cd ecoserve-backend
-    ```
-2.  **Konfigurasi Environment:**
-    Lengkapi fail `.env` pada direktori *root* dengan kredensial yang diperlukan (Database, JWT Secret, dan Gemini API Key).
-3.  **Manajemen Dependensi:**
-    ```bash
-    go mod tidy
-    ```
-4.  **Menjalankan Aplikasi:**
-    ```bash
-    go run cmd/api/main.go
-    ```
-5.  **Verifikasi Sistem:**
-    Pastikan layanan aktif dengan mengakses *endpoint* kesehatan sistem di `http://localhost:3000/health`.
+## 🌍 Analisis Dampak Lingkungan
+
+Sistem ini terintegrasi langsung dengan standar pengukur emisi. Setiap perbaikan yang tervalidasi secara otomatis dikonversi menjadi metrik penyelamatan CO2e menggunakan algoritma dari *Environmental Protection Agency* (EPA) Waste Reduction Model (WARM) versi 15.
+
+---
+*Dikembangkan secara eksklusif untuk mendorong transisi ke ekonomi sirkular berbasis teknologi.*
