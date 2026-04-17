@@ -29,6 +29,7 @@ func NewUserHandler(app *fiber.App, usecase usecase.UserUsecase) {
 	api := app.Group("/api/users")
 	api.Post("/auth/request", handler.RequestOTP)
 	api.Post("/auth/verify", handler.VerifyOTP)
+	api.Post("/auth/logout", handler.Logout)
 
 	api.Get("/me", middleware.Protected(), handler.GetProfile)
 	api.Delete("/me", middleware.Protected(), handler.DeleteAccount)
@@ -152,5 +153,26 @@ func (h *UserHandler) DeleteAccount(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Akun berhasil dihapus. Sesi telah diakhiri.",
+	})
+}
+
+// @Summary Logout Pengguna
+// @Description Mencabut sesi pengguna dengan menghapus cookie JWT dari browser.
+// @Tags Auth
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /api/users/auth/logout [post]
+func (h *UserHandler) Logout(c *fiber.Ctx) error {
+	c.Cookie(&fiber.Cookie{
+		Name:     "jwt",
+		Value:    "",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		HTTPOnly: true,
+		SameSite: "None",
+		Secure:   true,
+	})
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Berhasil logout. Sesi telah dihapus dari sistem.",
 	})
 }

@@ -394,6 +394,20 @@ paths:
       summary: Cari Teknisi Terdekat
       tags:
       - Technicians
+  /api/users/auth/logout:
+    post:
+      description: Mencabut sesi pengguna dengan menghapus cookie JWT dari browser.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Logout Pengguna
+      tags:
+      - Auth
   /api/users/auth/request:
     post:
       consumes:

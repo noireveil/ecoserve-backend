@@ -406,6 +406,27 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/users/auth/logout": {
+            "post": {
+                "description": "Mencabut sesi pengguna dengan menghapus cookie JWT dari browser.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout Pengguna",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/auth/request": {
             "post": {
                 "description": "Mengirimkan kode OTP ke email pengguna untuk proses otentikasi.",
