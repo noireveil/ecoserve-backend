@@ -465,6 +465,11 @@ const docTemplate = `{
         },
         "/api/technicians/": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Menambahkan data teknisi baru beserta titik koordinat operasinya.",
                 "consumes": [
                     "application/json"
@@ -889,41 +894,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_noireveil_ecoserve-backend_internal_domain.User": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "fullName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "otpcode": {
-                    "type": "string"
-                },
-                "otpexpiresAt": {
-                    "type": "string"
-                },
-                "profilePictureURL": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
         "github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest": {
             "type": "object",
             "properties": {
@@ -960,18 +930,6 @@ const docTemplate = `{
                 "profile_picture_url": {
                     "type": "string",
                     "example": "https://storage.com/photo.jpg"
-                }
-            }
-        },
-        "gorm.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
                 }
             }
         },
@@ -1022,17 +980,9 @@ const docTemplate = `{
         "internal_delivery_http_handlers.RegisterTechnicianRequest": {
             "type": "object",
             "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "experienceYears": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_available": {
-                    "type": "boolean"
+                "experience_years": {
+                    "type": "integer",
+                    "example": 5
                 },
                 "latitude": {
                     "type": "number",
@@ -1042,20 +992,9 @@ const docTemplate = `{
                     "type": "number",
                     "example": 106.8229
                 },
-                "rating": {
-                    "type": "number"
-                },
                 "specialization": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/github_com_noireveil_ecoserve-backend_internal_domain.User"
-                },
-                "userID": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Pendingin \u0026 Komersial"
                 }
             }
         },

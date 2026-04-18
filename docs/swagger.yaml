@@ -1,28 +1,5 @@
 basePath: /
 definitions:
-  github_com_noireveil_ecoserve-backend_internal_domain.User:
-    properties:
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      email:
-        type: string
-      fullName:
-        type: string
-      id:
-        type: string
-      otpcode:
-        type: string
-      otpexpiresAt:
-        type: string
-      profilePictureURL:
-        type: string
-      role:
-        type: string
-      updatedAt:
-        type: string
-    type: object
   github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest:
     properties:
       category:
@@ -48,14 +25,6 @@ definitions:
       profile_picture_url:
         example: https://storage.com/photo.jpg
         type: string
-    type: object
-  gorm.DeletedAt:
-    properties:
-      time:
-        type: string
-      valid:
-        description: Valid is true if Time is not NULL
-        type: boolean
     type: object
   internal_delivery_http_handlers.CreateDevicePayload:
     properties:
@@ -90,29 +59,17 @@ definitions:
     type: object
   internal_delivery_http_handlers.RegisterTechnicianRequest:
     properties:
-      createdAt:
-        type: string
-      experienceYears:
+      experience_years:
+        example: 5
         type: integer
-      id:
-        type: string
-      is_available:
-        type: boolean
       latitude:
         example: -6.1944
         type: number
       longitude:
         example: 106.8229
         type: number
-      rating:
-        type: number
       specialization:
-        type: string
-      updatedAt:
-        type: string
-      user:
-        $ref: '#/definitions/github_com_noireveil_ecoserve-backend_internal_domain.User'
-      userID:
+        example: Pendingin & Komersial
         type: string
     type: object
   internal_delivery_http_handlers.RequestOTPPayload:
@@ -480,6 +437,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Mendaftarkan Teknisi Baru
       tags:
       - Technicians

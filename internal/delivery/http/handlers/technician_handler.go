@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/noireveil/ecoserve-backend/internal/delivery/http/middleware"
 	"github.com/noireveil/ecoserve-backend/internal/domain"
 	"github.com/noireveil/ecoserve-backend/internal/usecase"
@@ -14,9 +15,10 @@ type TechnicianHandler struct {
 }
 
 type RegisterTechnicianRequest struct {
-	domain.Technician
-	Longitude float64 `json:"longitude" example:"106.8229"`
-	Latitude  float64 `json:"latitude" example:"-6.1944"`
+	Specialization  string  `json:"specialization" example:"Pendingin & Komersial"`
+	ExperienceYears int     `json:"experience_years" example:"5"`
+	Longitude       float64 `json:"longitude" example:"106.8229"`
+	Latitude        float64 `json:"latitude" example:"-6.1944"`
 }
 
 type UpdateAvailabilityPayload struct {
@@ -27,7 +29,7 @@ func NewTechnicianHandler(app *fiber.App, usecase usecase.TechnicianUsecase) {
 	handler := &TechnicianHandler{techUsecase: usecase}
 
 	api := app.Group("/api/technicians")
-	api.Post("/", handler.Register)
+	api.Post("/", middleware.Protected(), handler.Register)
 	api.Get("/nearby", handler.GetNearby)
 	api.Get("/performance", middleware.Protected(), handler.GetPerformance)
 	api.Get("/earnings", middleware.Protected(), handler.GetEarnings)
@@ -39,17 +41,33 @@ func NewTechnicianHandler(app *fiber.App, usecase usecase.TechnicianUsecase) {
 // @Tags Technicians
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param request body RegisterTechnicianRequest true "Data Teknisi"
 // @Success 201 {object} map[string]interface{}
 // @Router /api/technicians/ [post]
 func (h *TechnicianHandler) Register(c *fiber.Ctx) error {
-	var req RegisterTechnicianRequest
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Sesi tidak valid"})
+	}
 
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User ID tidak valid"})
+	}
+
+	var req RegisterTechnicianRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format JSON tidak valid"})
 	}
 
-	if err := h.techUsecase.RegisterTechnician(&req.Technician, req.Longitude, req.Latitude); err != nil {
+	tech := domain.Technician{
+		UserID:          userID,
+		Specialization:  req.Specialization,
+		ExperienceYears: req.ExperienceYears,
+	}
+
+	if err := h.techUsecase.RegisterTechnician(&tech, req.Longitude, req.Latitude); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
