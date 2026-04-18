@@ -5,6 +5,7 @@ import (
 
 	"github.com/noireveil/ecoserve-backend/internal/domain"
 	"github.com/noireveil/ecoserve-backend/internal/repository"
+	"github.com/noireveil/ecoserve-backend/pkg/utils"
 )
 
 type CompleteOrderRequest struct {
@@ -28,14 +29,41 @@ type OrderUsecase interface {
 
 type orderUsecase struct {
 	orderRepo repository.OrderRepository
+	techRepo  repository.TechnicianRepository
 }
 
-func NewOrderUsecase(orderRepo repository.OrderRepository) OrderUsecase {
-	return &orderUsecase{orderRepo}
+func NewOrderUsecase(orderRepo repository.OrderRepository, techRepo repository.TechnicianRepository) OrderUsecase {
+	return &orderUsecase{orderRepo, techRepo}
 }
 
 func (u *orderUsecase) CreateOrder(order *domain.Order) error {
-	return u.orderRepo.Create(order)
+	if err := u.orderRepo.Create(order); err != nil {
+		return err
+	}
+
+	go func(o domain.Order) {
+		if o.TechnicianID != nil {
+			tech, err := u.techRepo.FindByID(o.TechnicianID.String())
+			if err == nil && tech.User.Email != "" {
+				_ = utils.SendOrderNotificationEmail(tech.User.Email, tech.User.FullName, o.DeviceCategory, o.ProblemDescription)
+			}
+		} else {
+			nearbyTechs, err := u.techRepo.FindNearby(o.CustomerLongitude, o.CustomerLatitude, 15)
+			if err == nil {
+				limit := 5
+				if len(nearbyTechs) < limit {
+					limit = len(nearbyTechs)
+				}
+				for i := 0; i < limit; i++ {
+					if nearbyTechs[i].User.Email != "" {
+						_ = utils.SendOrderNotificationEmail(nearbyTechs[i].User.Email, nearbyTechs[i].User.FullName, o.DeviceCategory, o.ProblemDescription)
+					}
+				}
+			}
+		}
+	}(*order)
+
+	return nil
 }
 
 func (u *orderUsecase) GetUserOrders(userID string) ([]domain.Order, error) {
@@ -66,7 +94,7 @@ func (u *orderUsecase) CompleteOrder(orderID string, req CompleteOrderRequest) e
 	}
 
 	totalFee := req.ServiceFee
-	platformFee := totalFee * 0.10 // Take Rate 10% untuk EcoServe
+	platformFee := totalFee * 0.10 // Take Rate 10%
 	netFee := totalFee - platformFee
 
 	eWasteSaved := u.calculateImpactMetrics(req.DeviceWeight, req.Category, req.DistanceKm)

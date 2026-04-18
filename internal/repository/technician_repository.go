@@ -11,6 +11,7 @@ import (
 type TechnicianRepository interface {
 	Create(technician *domain.Technician, lon float64, lat float64) error
 	FindNearby(lon float64, lat float64, radiusKm int) ([]domain.Technician, error)
+	FindByID(id string) (*domain.Technician, error)
 	GetPerformanceByUserID(userID string) (float32, int, float64, error)
 	GetEarningsData(userID string) (float64, float64, int, error)
 }
@@ -50,6 +51,12 @@ func (r *technicianRepository) FindNearby(lon float64, lat float64, radiusKm int
 		Find(&technicians).Error
 
 	return technicians, err
+}
+
+func (r *technicianRepository) FindByID(id string) (*domain.Technician, error) {
+	var tech domain.Technician
+	err := r.db.Preload("User").Where("id = ?", id).First(&tech).Error
+	return &tech, err
 }
 
 func (r *technicianRepository) GetPerformanceByUserID(userID string) (float32, int, float64, error) {

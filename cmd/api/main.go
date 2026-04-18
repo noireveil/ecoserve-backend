@@ -110,7 +110,7 @@ func main() {
 
 	userUsecase := usecase.NewUserUsecase(userRepo)
 	techUsecase := usecase.NewTechnicianUsecase(techRepo, userRepo)
-	orderUsecase := usecase.NewOrderUsecase(orderRepo)
+	orderUsecase := usecase.NewOrderUsecase(orderRepo, techRepo)
 	deviceUsecase := usecase.NewDeviceUsecase(deviceRepo)
 	reviewUsecase := usecase.NewReviewUsecase(reviewRepo, orderRepo)
 
