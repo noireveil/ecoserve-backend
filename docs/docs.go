@@ -655,6 +655,58 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengubah nama lengkap dan foto profil pengguna. Email tidak dapat diubah untuk menjaga integritas OTP.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Memperbarui Profil Pengguna",
+                "parameters": [
+                    {
+                        "description": "Data Profil Baru",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.UpdateProfileRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -753,6 +805,9 @@ const docTemplate = `{
                 "otpexpiresAt": {
                     "type": "string"
                 },
+                "profilePictureURL": {
+                    "type": "string"
+                },
                 "role": {
                     "type": "string"
                 },
@@ -784,6 +839,19 @@ const docTemplate = `{
                 },
                 "service_fee": {
                     "type": "number"
+                }
+            }
+        },
+        "github_com_noireveil_ecoserve-backend_internal_usecase.UpdateProfileRequest": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string",
+                    "example": "EcoServe Tester"
+                },
+                "profile_picture_url": {
+                    "type": "string",
+                    "example": "https://storage.com/photo.jpg"
                 }
             }
         },

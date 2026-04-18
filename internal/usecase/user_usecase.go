@@ -17,12 +17,18 @@ type ConsumerImpactDTO struct {
 	CO2AvoidedKg float64 `json:"co2_avoided_kg" example:"45.5"`
 }
 
+type UpdateProfileRequest struct {
+	FullName          string  `json:"full_name" example:"EcoServe Tester"`
+	ProfilePictureURL *string `json:"profile_picture_url" example:"https://storage.com/photo.jpg"`
+}
+
 type UserUsecase interface {
 	RequestOTP(fullName, email string) error
 	VerifyOTP(email, code string) (*domain.User, error)
 	GetUserByID(id string) (*domain.User, error)
 	DeleteAccount(id string) error
 	GetImpact(id string) (ConsumerImpactDTO, error)
+	UpdateProfile(id string, req UpdateProfileRequest) error
 }
 
 type userUsecase struct {
@@ -120,4 +126,12 @@ func (u *userUsecase) GetImpact(id string) (ConsumerImpactDTO, error) {
 		TotalRepairs: repairs,
 		CO2AvoidedKg: co2,
 	}, nil
+}
+
+func (u *userUsecase) UpdateProfile(id string, req UpdateProfileRequest) error {
+	if strings.TrimSpace(req.FullName) == "" {
+		return errors.New("nama lengkap tidak boleh kosong")
+	}
+
+	return u.userRepo.UpdateProfile(id, req.FullName, req.ProfilePictureURL)
 }

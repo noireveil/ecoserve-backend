@@ -17,6 +17,7 @@ type UserRepository interface {
 	FindUnscopedByEmail(email string) (*domain.User, error)
 	RestoreAndUpdate(email, fullName string) error
 	GetConsumerImpact(userID string) (int, float64, error)
+	UpdateProfile(id string, fullName string, photoURL *string) error
 }
 
 type userRepository struct {
@@ -84,4 +85,11 @@ func (r *userRepository) GetConsumerImpact(userID string) (int, float64, error) 
 		Scan(&result).Error
 
 	return result.TotalRepairs, result.TotalCo2, err
+}
+
+func (r *userRepository) UpdateProfile(id string, fullName string, photoURL *string) error {
+	return r.db.Model(&domain.User{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"full_name":           fullName,
+		"profile_picture_url": photoURL,
+	}).Error
 }

@@ -32,6 +32,7 @@ func NewUserHandler(app *fiber.App, usecase usecase.UserUsecase) {
 	api.Post("/auth/logout", handler.Logout)
 
 	api.Get("/me", middleware.Protected(), handler.GetProfile)
+	api.Put("/me", middleware.Protected(), handler.UpdateProfile)
 	api.Get("/me/impact", middleware.Protected(), handler.GetImpact)
 	api.Delete("/me", middleware.Protected(), handler.DeleteAccount)
 }
@@ -200,5 +201,36 @@ func (h *UserHandler) GetImpact(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Berhasil mengambil metrik dampak lingkungan",
 		"data":    impact,
+	})
+}
+
+// @Summary Memperbarui Profil Pengguna
+// @Description Mengubah nama lengkap dan foto profil pengguna. Email tidak dapat diubah untuk menjaga integritas OTP.
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param request body usecase.UpdateProfileRequest true "Data Profil Baru"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /api/users/me [put]
+func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok || userIDStr == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Akses ditolak: Sesi tidak valid"})
+	}
+
+	var req usecase.UpdateProfileRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format JSON tidak valid"})
+	}
+
+	if err := h.userUsecase.UpdateProfile(userIDStr, req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Profil berhasil diperbarui",
 	})
 }
