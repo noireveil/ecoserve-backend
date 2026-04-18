@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Technician struct {
@@ -19,4 +20,5 @@ type Technician struct {
 	IsAvailable     bool      `gorm:"not null;default:true" json:"is_available"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+	DeletedAt       gorm.DeletedAt `gorm:"index"`
 }

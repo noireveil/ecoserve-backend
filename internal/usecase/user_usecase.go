@@ -61,6 +61,7 @@ func (u *userUsecase) RequestOTP(fullName, email string) error {
 	} else {
 		if user.DeletedAt.Valid {
 			targetName = fullName
+			_ = u.userRepo.HardDeleteTechnicianProfile(user.ID.String())
 			if errRestore := u.userRepo.RestoreAndUpdate(email, fullName); errRestore != nil {
 				return errRestore
 			}

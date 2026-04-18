@@ -18,6 +18,7 @@ type UserRepository interface {
 	RestoreAndUpdate(email, fullName string) error
 	GetConsumerImpact(userID string) (int, float64, error)
 	UpdateProfile(id string, fullName string, photoURL *string) error
+	HardDeleteTechnicianProfile(userID string) error
 }
 
 type userRepository struct {
@@ -92,4 +93,8 @@ func (r *userRepository) UpdateProfile(id string, fullName string, photoURL *str
 		"full_name":           fullName,
 		"profile_picture_url": photoURL,
 	}).Error
+}
+
+func (r *userRepository) HardDeleteTechnicianProfile(userID string) error {
+	return r.db.Unscoped().Where("user_id = ?", userID).Delete(&domain.Technician{}).Error
 }

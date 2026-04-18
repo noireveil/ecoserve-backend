@@ -26,6 +26,12 @@ func NewTechnicianRepository(db *gorm.DB) TechnicianRepository {
 }
 
 func (r *technicianRepository) Create(technician *domain.Technician, lon float64, lat float64) error {
+	var existing domain.Technician
+	err := r.db.Unscoped().Where("user_id = ?", technician.UserID).First(&existing).Error
+	if err == nil {
+		r.db.Unscoped().Delete(&existing)
+	}
+
 	if technician.ID == uuid.Nil {
 		technician.ID = uuid.New()
 	}
