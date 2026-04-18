@@ -25,6 +25,9 @@ type Order struct {
 	CustomerLatitude   float64     `gorm:"type:decimal(9,6)"`
 	CustomerLongitude  float64     `gorm:"type:decimal(9,6)"`
 	Status             OrderStatus `gorm:"type:varchar(50);not null;default:'PENDING'"`
+	TotalFee           float64     `gorm:"type:decimal(12,2);default:0.00"`
+	PlatformFee        float64     `gorm:"type:decimal(12,2);default:0.00"`
+	NetTechnicianFee   float64     `gorm:"type:decimal(12,2);default:0.00"`
 	EWasteSavedKg      float64     `gorm:"type:decimal(10,2);default:0.00"`
 	PhotoProofURL      *string     `gorm:"type:text"`
 	GPSLockCoord       *string     `gorm:"type:geometry(Point,4326)"`

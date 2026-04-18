@@ -14,6 +14,7 @@ type CompleteOrderRequest struct {
 	DeviceWeight float64 `json:"device_weight"`
 	Category     string  `json:"category"`
 	DistanceKm   float64 `json:"distance_km"`
+	ServiceFee   float64 `json:"service_fee"`
 }
 
 type OrderUsecase interface {
@@ -55,9 +56,17 @@ func (u *orderUsecase) CompleteOrder(orderID string, req CompleteOrderRequest) e
 	if req.Longitude == 0 || req.Latitude == 0 {
 		return errors.New("lapisan anti-fraud: verifikasi geospasial wajib disertakan")
 	}
+	if req.ServiceFee <= 0 {
+		return errors.New("validasi gagal: teknisi harus memasukkan nominal biaya jasa riil yang disepakati")
+	}
+
+	totalFee := req.ServiceFee
+	platformFee := totalFee * 0.10 // Take Rate 10% untuk EcoServe
+	netFee := totalFee - platformFee
 
 	eWasteSaved := u.calculateImpactMetrics(req.DeviceWeight, req.Category, req.DistanceKm)
-	return u.orderRepo.CompleteWithAntiFraud(orderID, req.PhotoURL, req.Longitude, req.Latitude, eWasteSaved)
+
+	return u.orderRepo.CompleteWithAntiFraud(orderID, req.PhotoURL, req.Longitude, req.Latitude, eWasteSaved, totalFee, platformFee, netFee)
 }
 
 const EFTransportMotorcycle = 0.103

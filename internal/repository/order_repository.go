@@ -12,7 +12,7 @@ type OrderRepository interface {
 	Create(order *domain.Order) error
 	FindByID(id string) (*domain.Order, error)
 	FindByUserID(userID string) ([]domain.Order, error)
-	CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved float64) error
+	CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved, totalFee, platformFee, netFee float64) error
 	FindIncomingOrders() ([]domain.Order, error)
 	AcceptOrder(orderID string, userID string) error
 }
@@ -37,14 +37,12 @@ func (r *orderRepository) FindByID(id string) (*domain.Order, error) {
 
 func (r *orderRepository) FindByUserID(userID string) ([]domain.Order, error) {
 	var orders []domain.Order
-
 	err := r.db.Preload("Customer").
 		Preload("Technician.User").
 		Joins("LEFT JOIN technicians ON technicians.id = orders.technician_id").
 		Where("orders.customer_id = ? OR technicians.user_id = ?", userID, userID).
 		Order("orders.created_at desc").
 		Find(&orders).Error
-
 	return orders, err
 }
 
@@ -80,16 +78,19 @@ func (r *orderRepository) AcceptOrder(orderID string, userID string) error {
 	return nil
 }
 
-func (r *orderRepository) CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved float64) error {
+func (r *orderRepository) CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved, totalFee, platformFee, netFee float64) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		point := fmt.Sprintf("SRID=4326;POINT(%f %f)", lon, lat)
 
 		result := tx.Model(&domain.Order{}).Where("id = ?", id).Updates(map[string]interface{}{
-			"status":            domain.OrderStatusCompleted,
-			"e_waste_saved_kg":  eWasteSaved,
-			"photo_proof_url":   photoURL,
-			"gps_lock_coord":    gorm.Expr("ST_GeomFromEWKT(?)", point),
-			"is_dual_confirmed": true,
+			"status":             domain.OrderStatusCompleted,
+			"total_fee":          totalFee,
+			"platform_fee":       platformFee,
+			"net_technician_fee": netFee,
+			"e_waste_saved_kg":   eWasteSaved,
+			"photo_proof_url":    photoURL,
+			"gps_lock_coord":     gorm.Expr("ST_GeomFromEWKT(?)", point),
+			"is_dual_confirmed":  true,
 		})
 
 		if result.Error != nil {

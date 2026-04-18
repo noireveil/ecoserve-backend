@@ -26,6 +26,7 @@ func NewTechnicianHandler(app *fiber.App, usecase usecase.TechnicianUsecase) {
 	api.Post("/", handler.Register)
 	api.Get("/nearby", handler.GetNearby)
 	api.Get("/performance", middleware.Protected(), handler.GetPerformance)
+	api.Get("/earnings", middleware.Protected(), handler.GetEarnings)
 }
 
 // @Summary Mendaftarkan Teknisi Baru
@@ -98,5 +99,34 @@ func (h *TechnicianHandler) GetPerformance(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Berhasil mengambil metrik performa teknisi",
 		"data":    perf,
+	})
+}
+
+// @Summary Mendapatkan Pendapatan Teknisi
+// @Description Mengambil total pendapatan dan pendapatan bulan ini berdasarkan akumulasi tarif jasa pesanan yang telah selesai.
+// @Tags Technicians
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /api/technicians/earnings [get]
+func (h *TechnicianHandler) GetEarnings(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User ID tidak valid"})
+	}
+
+	role, _ := c.Locals("role").(string)
+	if role != "technician" {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Akses ditolak: Hanya untuk teknisi"})
+	}
+
+	earnings, err := h.techUsecase.GetEarnings(userIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Berhasil mengambil rincian pendapatan teknisi",
+		"data":    earnings,
 	})
 }

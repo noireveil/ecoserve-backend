@@ -13,10 +13,17 @@ type TechnicianPerformanceDTO struct {
 	CO2SavedKg   float64 `json:"co2_saved_kg" example:"150.5"`
 }
 
+type TechnicianEarningsDTO struct {
+	TotalEarnings     float64 `json:"total_earnings" example:"1500000"`
+	ThisMonthEarnings float64 `json:"this_month_earnings" example:"450000"`
+	TotalCompleted    int     `json:"total_completed" example:"24"`
+}
+
 type TechnicianUsecase interface {
 	GetNearbyTechnicians(lon, lat float64, radiusKm int) ([]domain.Technician, error)
 	RegisterTechnician(technician *domain.Technician, lon, lat float64) error
 	GetPerformance(userID string) (TechnicianPerformanceDTO, error)
+	GetEarnings(userID string) (TechnicianEarningsDTO, error)
 }
 
 type technicianUsecase struct {
@@ -50,5 +57,18 @@ func (u *technicianUsecase) GetPerformance(userID string) (TechnicianPerformance
 		Rating:       rating,
 		TotalRepairs: repairs,
 		CO2SavedKg:   co2,
+	}, nil
+}
+
+func (u *technicianUsecase) GetEarnings(userID string) (TechnicianEarningsDTO, error) {
+	total, thisMonth, completed, err := u.techRepo.GetEarningsData(userID)
+	if err != nil {
+		return TechnicianEarningsDTO{}, errors.New("gagal mengkalkulasi data pendapatan teknisi")
+	}
+
+	return TechnicianEarningsDTO{
+		TotalEarnings:     total,
+		ThisMonthEarnings: thisMonth,
+		TotalCompleted:    completed,
 	}, nil
 }

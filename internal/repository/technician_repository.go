@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/noireveil/ecoserve-backend/internal/domain"
 	"gorm.io/gorm"
@@ -10,6 +12,7 @@ type TechnicianRepository interface {
 	Create(technician *domain.Technician, lon float64, lat float64) error
 	FindNearby(lon float64, lat float64, radiusKm int) ([]domain.Technician, error)
 	GetPerformanceByUserID(userID string) (float32, int, float64, error)
+	GetEarningsData(userID string) (float64, float64, int, error)
 }
 
 type technicianRepository struct {
@@ -65,4 +68,29 @@ func (r *technicianRepository) GetPerformanceByUserID(userID string) (float32, i
 	}
 
 	return result.Rating, result.TotalRepairs, result.TotalCo2, nil
+}
+
+func (r *technicianRepository) GetEarningsData(userID string) (float64, float64, int, error) {
+	var orders []domain.Order
+	err := r.db.Joins("JOIN technicians ON technicians.id = orders.technician_id").
+		Where("technicians.user_id = ? AND orders.status = ?", userID, domain.OrderStatusCompleted).
+		Find(&orders).Error
+
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	var total, thisMonth float64
+	completed := len(orders)
+	currentMonth := time.Now().Month()
+	currentYear := time.Now().Year()
+
+	for _, o := range orders {
+		total += o.NetTechnicianFee
+		if o.UpdatedAt.Month() == currentMonth && o.UpdatedAt.Year() == currentYear {
+			thisMonth += o.NetTechnicianFee
+		}
+	}
+
+	return total, thisMonth, completed, nil
 }

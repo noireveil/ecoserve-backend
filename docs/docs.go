@@ -430,6 +430,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/technicians/earnings": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengambil total pendapatan dan pendapatan bulan ini berdasarkan akumulasi tarif jasa pesanan yang telah selesai.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Technicians"
+                ],
+                "summary": "Mendapatkan Pendapatan Teknisi",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/technicians/nearby": {
             "get": {
                 "description": "Melakukan kueri spasial (PostGIS) untuk mencari teknisi dalam radius tertentu.",
@@ -722,6 +748,9 @@ const docTemplate = `{
                 },
                 "photo_url": {
                     "type": "string"
+                },
+                "service_fee": {
+                    "type": "number"
                 }
             }
         },
