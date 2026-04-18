@@ -85,8 +85,6 @@ definitions:
       latitude:
         example: -6.1944
         type: number
-      location:
-        type: string
       longitude:
         example: 106.8229
         type: number

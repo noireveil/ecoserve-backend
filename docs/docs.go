@@ -855,9 +855,6 @@ const docTemplate = `{
                     "type": "number",
                     "example": -6.1944
                 },
-                "location": {
-                    "type": "string"
-                },
                 "longitude": {
                     "type": "number",
                     "example": 106.8229
