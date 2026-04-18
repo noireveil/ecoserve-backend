@@ -19,6 +19,10 @@ type RegisterTechnicianRequest struct {
 	Latitude  float64 `json:"latitude" example:"-6.1944"`
 }
 
+type UpdateAvailabilityPayload struct {
+	IsAvailable bool `json:"is_available"`
+}
+
 func NewTechnicianHandler(app *fiber.App, usecase usecase.TechnicianUsecase) {
 	handler := &TechnicianHandler{techUsecase: usecase}
 
@@ -27,6 +31,7 @@ func NewTechnicianHandler(app *fiber.App, usecase usecase.TechnicianUsecase) {
 	api.Get("/nearby", handler.GetNearby)
 	api.Get("/performance", middleware.Protected(), handler.GetPerformance)
 	api.Get("/earnings", middleware.Protected(), handler.GetEarnings)
+	api.Put("/availability", middleware.Protected(), handler.UpdateAvailability)
 }
 
 // @Summary Mendaftarkan Teknisi Baru
@@ -52,7 +57,7 @@ func (h *TechnicianHandler) Register(c *fiber.Ctx) error {
 }
 
 // @Summary Cari Teknisi Terdekat
-// @Description Melakukan kueri spasial (PostGIS) untuk mencari teknisi dalam radius tertentu.
+// @Description Melakukan kueri spasial (PostGIS) untuk mencari teknisi dalam radius tertentu yang sedang ONLINE.
 // @Tags Technicians
 // @Produce json
 // @Param lon query number true "Garis Bujur (Longitude)"
@@ -73,60 +78,73 @@ func (h *TechnicianHandler) GetNearby(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": technicians})
 }
 
+// @Summary Ubah Status Ketersediaan Teknisi
+// @Description Mengubah status online/offline teknisi. Jika offline, teknisi tidak akan muncul dalam pencarian geospasial pesanan publik.
+// @Tags Technicians
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param request body UpdateAvailabilityPayload true "Status Ketersediaan"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/technicians/availability [put]
+func (h *TechnicianHandler) UpdateAvailability(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User ID tidak valid"})
+	}
+
+	role, _ := c.Locals("role").(string)
+	if role != "technician" {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Akses ditolak: Hanya untuk teknisi"})
+	}
+
+	var req UpdateAvailabilityPayload
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format JSON tidak valid"})
+	}
+
+	if err := h.techUsecase.UpdateAvailability(userIDStr, req.IsAvailable); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal memperbarui status ketersediaan"})
+	}
+
+	statusMsg := "Offline (Tidak Menerima Pesanan)"
+	if req.IsAvailable {
+		statusMsg = "Online (Menerima Pesanan)"
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Status ketersediaan berhasil diubah menjadi: " + statusMsg,
+	})
+}
+
 // @Summary Mendapatkan Metrik Performa Teknisi
-// @Description Mengambil agregasi data performa (Rating, Total Perbaikan, dan Total CO2 yang diselamatkan) dari teknisi yang sedang login.
+// @Description Mengambil agregasi data performa dari teknisi yang sedang login.
 // @Tags Technicians
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} map[string]interface{}
 // @Router /api/technicians/performance [get]
 func (h *TechnicianHandler) GetPerformance(c *fiber.Ctx) error {
-	userIDStr, ok := c.Locals("user_id").(string)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User ID tidak valid"})
-	}
-
-	role, _ := c.Locals("role").(string)
-	if role != "technician" {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Akses ditolak: Hanya untuk teknisi"})
-	}
-
+	userIDStr, _ := c.Locals("user_id").(string)
 	perf, err := h.techUsecase.GetPerformance(userIDStr)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil mengambil metrik performa teknisi",
-		"data":    perf,
-	})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": perf})
 }
 
 // @Summary Mendapatkan Pendapatan Teknisi
-// @Description Mengambil total pendapatan dan pendapatan bulan ini berdasarkan akumulasi tarif jasa pesanan yang telah selesai.
+// @Description Mengambil total pendapatan teknisi.
 // @Tags Technicians
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} map[string]interface{}
 // @Router /api/technicians/earnings [get]
 func (h *TechnicianHandler) GetEarnings(c *fiber.Ctx) error {
-	userIDStr, ok := c.Locals("user_id").(string)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User ID tidak valid"})
-	}
-
-	role, _ := c.Locals("role").(string)
-	if role != "technician" {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Akses ditolak: Hanya untuk teknisi"})
-	}
-
+	userIDStr, _ := c.Locals("user_id").(string)
 	earnings, err := h.techUsecase.GetEarnings(userIDStr)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Berhasil mengambil rincian pendapatan teknisi",
-		"data":    earnings,
-	})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": earnings})
 }

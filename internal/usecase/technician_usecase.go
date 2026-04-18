@@ -24,6 +24,7 @@ type TechnicianUsecase interface {
 	RegisterTechnician(technician *domain.Technician, lon, lat float64) error
 	GetPerformance(userID string) (TechnicianPerformanceDTO, error)
 	GetEarnings(userID string) (TechnicianEarningsDTO, error)
+	UpdateAvailability(userID string, isAvailable bool) error
 }
 
 type technicianUsecase struct {
@@ -45,6 +46,10 @@ func (u *technicianUsecase) RegisterTechnician(technician *domain.Technician, lo
 		return err
 	}
 	return u.userRepo.UpdateRole(technician.UserID.String(), "technician")
+}
+
+func (u *technicianUsecase) UpdateAvailability(userID string, isAvailable bool) error {
+	return u.techRepo.UpdateAvailability(userID, isAvailable)
 }
 
 func (u *technicianUsecase) GetPerformance(userID string) (TechnicianPerformanceDTO, error) {

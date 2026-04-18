@@ -96,6 +96,8 @@ definitions:
         type: integer
       id:
         type: string
+      is_available:
+        type: boolean
       latitude:
         example: -6.1944
         type: number
@@ -142,6 +144,11 @@ definitions:
       message:
         example: Kompresor kulkas saya mati dan bau hangus.
         type: string
+    type: object
+  internal_delivery_http_handlers.UpdateAvailabilityPayload:
+    properties:
+      is_available:
+        type: boolean
     type: object
   internal_delivery_http_handlers.VerifyOTPPayload:
     properties:
@@ -476,10 +483,35 @@ paths:
       summary: Mendaftarkan Teknisi Baru
       tags:
       - Technicians
+  /api/technicians/availability:
+    put:
+      consumes:
+      - application/json
+      description: Mengubah status online/offline teknisi. Jika offline, teknisi tidak
+        akan muncul dalam pencarian geospasial pesanan publik.
+      parameters:
+      - description: Status Ketersediaan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_delivery_http_handlers.UpdateAvailabilityPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Ubah Status Ketersediaan Teknisi
+      tags:
+      - Technicians
   /api/technicians/earnings:
     get:
-      description: Mengambil total pendapatan dan pendapatan bulan ini berdasarkan
-        akumulasi tarif jasa pesanan yang telah selesai.
+      description: Mengambil total pendapatan teknisi.
       produces:
       - application/json
       responses:
@@ -496,7 +528,7 @@ paths:
   /api/technicians/nearby:
     get:
       description: Melakukan kueri spasial (PostGIS) untuk mencari teknisi dalam radius
-        tertentu.
+        tertentu yang sedang ONLINE.
       parameters:
       - description: Garis Bujur (Longitude)
         in: query
@@ -525,8 +557,7 @@ paths:
       - Technicians
   /api/technicians/performance:
     get:
-      description: Mengambil agregasi data performa (Rating, Total Perbaikan, dan
-        Total CO2 yang diselamatkan) dari teknisi yang sedang login.
+      description: Mengambil agregasi data performa dari teknisi yang sedang login.
       produces:
       - application/json
       responses:

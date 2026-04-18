@@ -16,6 +16,7 @@ type Technician struct {
 	Location        string    `gorm:"type:geometry(Point,4326);not null" json:"-"`
 	Latitude        float64   `gorm:"type:decimal(9,6);not null;default:0" json:"latitude"`
 	Longitude       float64   `gorm:"type:decimal(9,6);not null;default:0" json:"longitude"`
+	IsAvailable     bool      `gorm:"not null;default:true" json:"is_available"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }

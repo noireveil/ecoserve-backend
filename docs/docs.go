@@ -498,6 +498,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/technicians/availability": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengubah status online/offline teknisi. Jika offline, teknisi tidak akan muncul dalam pencarian geospasial pesanan publik.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Technicians"
+                ],
+                "summary": "Ubah Status Ketersediaan Teknisi",
+                "parameters": [
+                    {
+                        "description": "Status Ketersediaan",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_delivery_http_handlers.UpdateAvailabilityPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/technicians/earnings": {
             "get": {
                 "security": [
@@ -505,7 +545,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Mengambil total pendapatan dan pendapatan bulan ini berdasarkan akumulasi tarif jasa pesanan yang telah selesai.",
+                "description": "Mengambil total pendapatan teknisi.",
                 "produces": [
                     "application/json"
                 ],
@@ -526,7 +566,7 @@ const docTemplate = `{
         },
         "/api/technicians/nearby": {
             "get": {
-                "description": "Melakukan kueri spasial (PostGIS) untuk mencari teknisi dalam radius tertentu.",
+                "description": "Melakukan kueri spasial (PostGIS) untuk mencari teknisi dalam radius tertentu yang sedang ONLINE.",
                 "produces": [
                     "application/json"
                 ],
@@ -574,7 +614,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Mengambil agregasi data performa (Rating, Total Perbaikan, dan Total CO2 yang diselamatkan) dari teknisi yang sedang login.",
+                "description": "Mengambil agregasi data performa dari teknisi yang sedang login.",
                 "produces": [
                     "application/json"
                 ],
@@ -991,6 +1031,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "is_available": {
+                    "type": "boolean"
+                },
                 "latitude": {
                     "type": "number",
                     "example": -6.1944
@@ -1056,6 +1099,14 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Kompresor kulkas saya mati dan bau hangus."
+                }
+            }
+        },
+        "internal_delivery_http_handlers.UpdateAvailabilityPayload": {
+            "type": "object",
+            "properties": {
+                "is_available": {
+                    "type": "boolean"
                 }
             }
         },
