@@ -12,11 +12,17 @@ import (
 	"gorm.io/gorm"
 )
 
+type ConsumerImpactDTO struct {
+	TotalRepairs int     `json:"total_repairs" example:"3"`
+	CO2AvoidedKg float64 `json:"co2_avoided_kg" example:"45.5"`
+}
+
 type UserUsecase interface {
 	RequestOTP(fullName, email string) error
 	VerifyOTP(email, code string) (*domain.User, error)
 	GetUserByID(id string) (*domain.User, error)
 	DeleteAccount(id string) error
+	GetImpact(id string) (ConsumerImpactDTO, error)
 }
 
 type userUsecase struct {
@@ -102,4 +108,16 @@ func (u *userUsecase) GetUserByID(id string) (*domain.User, error) {
 
 func (u *userUsecase) DeleteAccount(id string) error {
 	return u.userRepo.Delete(id)
+}
+
+func (u *userUsecase) GetImpact(id string) (ConsumerImpactDTO, error) {
+	repairs, co2, err := u.userRepo.GetConsumerImpact(id)
+	if err != nil {
+		return ConsumerImpactDTO{}, errors.New("gagal mengambil metrik dampak lingkungan")
+	}
+
+	return ConsumerImpactDTO{
+		TotalRepairs: repairs,
+		CO2AvoidedKg: co2,
+	}, nil
 }

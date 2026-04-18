@@ -693,6 +693,39 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/users/me/impact": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengambil agregasi data dampak lingkungan (Total Perbaikan dan Total CO2 yang Dihindari) untuk konsumen yang sedang login.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Mendapatkan Dampak Lingkungan Pengguna",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

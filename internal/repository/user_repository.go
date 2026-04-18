@@ -16,6 +16,7 @@ type UserRepository interface {
 	UpdateRole(id string, role string) error
 	FindUnscopedByEmail(email string) (*domain.User, error)
 	RestoreAndUpdate(email, fullName string) error
+	GetConsumerImpact(userID string) (int, float64, error)
 }
 
 type userRepository struct {
@@ -69,4 +70,18 @@ func (r *userRepository) RestoreAndUpdate(email, fullName string) error {
 		"full_name":  fullName,
 		"role":       "customer",
 	}).Error
+}
+
+func (r *userRepository) GetConsumerImpact(userID string) (int, float64, error) {
+	var result struct {
+		TotalRepairs int
+		TotalCo2     float64
+	}
+
+	err := r.db.Table("orders").
+		Select("COUNT(id) as total_repairs, COALESCE(SUM(e_waste_saved_kg), 0) as total_co2").
+		Where("customer_id = ? AND status = ?", userID, domain.OrderStatusCompleted).
+		Scan(&result).Error
+
+	return result.TotalRepairs, result.TotalCo2, err
 }

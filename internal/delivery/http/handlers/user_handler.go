@@ -32,6 +32,7 @@ func NewUserHandler(app *fiber.App, usecase usecase.UserUsecase) {
 	api.Post("/auth/logout", handler.Logout)
 
 	api.Get("/me", middleware.Protected(), handler.GetProfile)
+	api.Get("/me/impact", middleware.Protected(), handler.GetImpact)
 	api.Delete("/me", middleware.Protected(), handler.DeleteAccount)
 }
 
@@ -174,5 +175,30 @@ func (h *UserHandler) Logout(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Berhasil logout. Sesi telah dihapus dari sistem.",
+	})
+}
+
+// @Summary Mendapatkan Dampak Lingkungan Pengguna
+// @Description Mengambil agregasi data dampak lingkungan (Total Perbaikan dan Total CO2 yang Dihindari) untuk konsumen yang sedang login.
+// @Tags Users
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /api/users/me/impact [get]
+func (h *UserHandler) GetImpact(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok || userIDStr == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Akses ditolak: Sesi tidak valid"})
+	}
+
+	impact, err := h.userUsecase.GetImpact(userIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Berhasil mengambil metrik dampak lingkungan",
+		"data":    impact,
 	})
 }

@@ -599,6 +599,28 @@ paths:
       summary: Mendapatkan Profil Pengguna
       tags:
       - Users
+  /api/users/me/impact:
+    get:
+      description: Mengambil agregasi data dampak lingkungan (Total Perbaikan dan
+        Total CO2 yang Dihindari) untuk konsumen yang sedang login.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mendapatkan Dampak Lingkungan Pengguna
+      tags:
+      - Users
 securityDefinitions:
   ApiKeyAuth:
     in: cookie
