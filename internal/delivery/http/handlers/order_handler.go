@@ -28,8 +28,30 @@ func NewOrderHandler(app *fiber.App, usecase usecase.OrderUsecase) {
 	api.Post("/", middleware.Protected(), handler.Create)
 	api.Get("/", middleware.Protected(), handler.GetMyOrders)
 	api.Get("/incoming", middleware.Protected(), handler.GetIncomingOrders)
+	api.Get("/:id", middleware.Protected(), handler.GetDetail)
 	api.Put("/:id/accept", middleware.Protected(), handler.Accept)
 	api.Put("/:id/complete", middleware.Protected(), handler.Complete)
+}
+
+// @Summary Mendapatkan Detail Pesanan
+// @Description Mengambil informasi lengkap satu pesanan berdasarkan UUID.
+// @Tags Orders
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "ID Pesanan (UUID)"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/orders/{id} [get]
+func (h *OrderHandler) GetDetail(c *fiber.Ctx) error {
+	orderID := c.Params("id")
+	order, err := h.orderUsecase.GetOrderByID(orderID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Pesanan tidak ditemukan"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Berhasil mengambil detail pesanan",
+		"data":    order,
+	})
 }
 
 // @Summary Mendapatkan Pesanan Masuk

@@ -251,6 +251,27 @@ paths:
       summary: Menghapus Perangkat (DPP)
       tags:
       - Devices
+    get:
+      description: Mengambil informasi lengkap satu perangkat berdasarkan UUID.
+      parameters:
+      - description: ID Perangkat (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mendapatkan Detail Perangkat (DPP)
+      tags:
+      - Devices
   /api/orders/:
     get:
       description: Mengambil daftar pesanan yang terkait dengan pengguna (sebagai
@@ -291,6 +312,28 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Membuat Pesanan Perbaikan
+      tags:
+      - Orders
+  /api/orders/{id}:
+    get:
+      description: Mengambil informasi lengkap satu pesanan berdasarkan UUID.
+      parameters:
+      - description: ID Pesanan (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mendapatkan Detail Pesanan
       tags:
       - Orders
   /api/orders/{id}/accept:

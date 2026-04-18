@@ -8,6 +8,7 @@ import (
 type DeviceRepository interface {
 	Create(device *domain.DigitalProductPassport) error
 	FindByOwnerID(ownerID string) ([]domain.DigitalProductPassport, error)
+	FindByID(id string) (*domain.DigitalProductPassport, error)
 	Delete(id string, ownerID string) error
 }
 
@@ -27,6 +28,12 @@ func (r *deviceRepository) FindByOwnerID(ownerID string) ([]domain.DigitalProduc
 	var devices []domain.DigitalProductPassport
 	err := r.db.Where("owner_id = ?", ownerID).Order("created_at desc").Find(&devices).Error
 	return devices, err
+}
+
+func (r *deviceRepository) FindByID(id string) (*domain.DigitalProductPassport, error) {
+	var device domain.DigitalProductPassport
+	err := r.db.Where("id = ?", id).First(&device).Error
+	return &device, err
 }
 
 func (r *deviceRepository) Delete(id string, ownerID string) error {

@@ -26,7 +26,29 @@ func NewDeviceHandler(app *fiber.App, usecase usecase.DeviceUsecase) {
 	api := app.Group("/api/devices")
 	api.Post("/", middleware.Protected(), handler.Create)
 	api.Get("/", middleware.Protected(), handler.GetMyDevices)
+	api.Get("/:id", middleware.Protected(), handler.GetDetail)
 	api.Delete("/:id", middleware.Protected(), handler.Delete)
+}
+
+// @Summary Mendapatkan Detail Perangkat (DPP)
+// @Description Mengambil informasi lengkap satu perangkat berdasarkan UUID.
+// @Tags Devices
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "ID Perangkat (UUID)"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/devices/{id} [get]
+func (h *DeviceHandler) GetDetail(c *fiber.Ctx) error {
+	deviceID := c.Params("id")
+	device, err := h.deviceUsecase.GetDeviceByID(deviceID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Perangkat tidak ditemukan"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Berhasil mengambil detail perangkat",
+		"data":    device,
+	})
 }
 
 // @Summary Mendaftarkan Perangkat (DPP)

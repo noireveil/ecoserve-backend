@@ -122,6 +122,39 @@ const docTemplate = `{
             }
         },
         "/api/devices/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengambil informasi lengkap satu perangkat berdasarkan UUID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Mendapatkan Detail Perangkat (DPP)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Perangkat (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -235,6 +268,41 @@ const docTemplate = `{
                     "Orders"
                 ],
                 "summary": "Mendapatkan Pesanan Masuk",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengambil informasi lengkap satu pesanan berdasarkan UUID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Mendapatkan Detail Pesanan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Pesanan (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

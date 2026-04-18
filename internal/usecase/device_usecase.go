@@ -8,6 +8,7 @@ import (
 type DeviceUsecase interface {
 	CreateDevice(device *domain.DigitalProductPassport) error
 	GetUserDevices(ownerID string) ([]domain.DigitalProductPassport, error)
+	GetDeviceByID(id string) (*domain.DigitalProductPassport, error)
 	DeleteDevice(deviceID string, ownerID string) error
 }
 
@@ -25,6 +26,10 @@ func (u *deviceUsecase) CreateDevice(device *domain.DigitalProductPassport) erro
 
 func (u *deviceUsecase) GetUserDevices(ownerID string) ([]domain.DigitalProductPassport, error) {
 	return u.deviceRepo.FindByOwnerID(ownerID)
+}
+
+func (u *deviceUsecase) GetDeviceByID(id string) (*domain.DigitalProductPassport, error) {
+	return u.deviceRepo.FindByID(id)
 }
 
 func (u *deviceUsecase) DeleteDevice(deviceID string, ownerID string) error {
