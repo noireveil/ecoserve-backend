@@ -829,6 +829,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Pendingin \u0026 Komersial"
                 },
+                "device_id": {
+                    "type": "string",
+                    "example": "(Opsional) uuid-device-dpp"
+                },
                 "problem_description": {
                     "type": "string",
                     "example": "Kompresor mati dan berasap"

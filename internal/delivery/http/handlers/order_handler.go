@@ -14,6 +14,7 @@ type OrderHandler struct {
 
 type CreateOrderPayload struct {
 	TechnicianID       string  `json:"technician_id" example:"(Opsional) uuid-teknisi"`
+	DeviceID           string  `json:"device_id" example:"(Opsional) uuid-device-dpp"`
 	DeviceCategory     string  `json:"device_category" example:"Pendingin & Komersial"`
 	ProblemDescription string  `json:"problem_description" example:"Kompresor mati dan berasap"`
 	CustomerLatitude   float64 `json:"customer_latitude"`
@@ -103,15 +104,23 @@ func (h *OrderHandler) Create(c *fiber.Ctx) error {
 	var techIDPtr *uuid.UUID
 	if req.TechnicianID != "" {
 		tID, errParse := uuid.Parse(req.TechnicianID)
-		if errParse != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format Technician ID tidak valid"})
+		if errParse == nil {
+			techIDPtr = &tID
 		}
-		techIDPtr = &tID
+	}
+
+	var devIDPtr *uuid.UUID
+	if req.DeviceID != "" {
+		dID, errParse := uuid.Parse(req.DeviceID)
+		if errParse == nil {
+			devIDPtr = &dID
+		}
 	}
 
 	order := domain.Order{
 		CustomerID:         customerID,
 		TechnicianID:       techIDPtr,
+		DeviceID:           devIDPtr,
 		DeviceCategory:     req.DeviceCategory,
 		ProblemDescription: req.ProblemDescription,
 		CustomerLatitude:   req.CustomerLatitude,

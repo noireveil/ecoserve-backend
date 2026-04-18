@@ -80,6 +80,11 @@ func (r *orderRepository) AcceptOrder(orderID string, userID string) error {
 
 func (r *orderRepository) CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved, totalFee, platformFee, netFee float64) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
+		var order domain.Order
+		if err := tx.Where("id = ?", id).First(&order).Error; err != nil {
+			return fmt.Errorf("pesanan dengan ID %s tidak ditemukan", id)
+		}
+
 		point := fmt.Sprintf("SRID=4326;POINT(%f %f)", lon, lat)
 
 		result := tx.Model(&domain.Order{}).Where("id = ?", id).Updates(map[string]interface{}{
@@ -98,7 +103,13 @@ func (r *orderRepository) CompleteWithAntiFraud(id string, photoURL string, lon 
 		}
 
 		if result.RowsAffected == 0 {
-			return fmt.Errorf("pesanan dengan ID %s tidak ditemukan atau sudah diselesaikan", id)
+			return fmt.Errorf("pesanan dengan ID %s sudah diselesaikan sebelumnya", id)
+		}
+
+		if order.DeviceID != nil {
+			if err := tx.Model(&domain.DigitalProductPassport{}).Where("id = ?", order.DeviceID).UpdateColumn("total_repairs", gorm.Expr("total_repairs + ?", 1)).Error; err != nil {
+				return fmt.Errorf("gagal mengupdate statistik perangkat: %v", err)
+			}
 		}
 
 		orderUUID, err := uuid.Parse(id)

@@ -14,6 +14,7 @@ type DigitalProductPassport struct {
 	BrandName    string    `gorm:"type:varchar(100);not null"`
 	WeightInKg   float64   `gorm:"type:decimal(5,2);not null"`
 	PurchaseDate time.Time `gorm:"type:date"`
+	TotalRepairs int       `gorm:"not null;default:0" json:"total_repairs"`
 	CreatedAt    time.Time
 }
 

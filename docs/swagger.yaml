@@ -67,6 +67,9 @@ definitions:
       device_category:
         example: Pendingin & Komersial
         type: string
+      device_id:
+        example: (Opsional) uuid-device-dpp
+        type: string
       problem_description:
         example: Kompresor mati dan berasap
         type: string
