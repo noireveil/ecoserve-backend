@@ -15,6 +15,7 @@ type OrderRepository interface {
 	CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved, totalFee, platformFee, netFee float64) error
 	FindIncomingOrders() ([]domain.Order, error)
 	AcceptOrder(orderID string, userID string) error
+	CancelOrder(orderID string, customerID string) error
 }
 
 type orderRepository struct {
@@ -73,6 +74,22 @@ func (r *orderRepository) AcceptOrder(orderID string, userID string) error {
 
 	if result.RowsAffected == 0 {
 		return fmt.Errorf("pesanan tidak tersedia atau sudah diambil oleh teknisi lain")
+	}
+
+	return nil
+}
+
+func (r *orderRepository) CancelOrder(orderID string, customerID string) error {
+	result := r.db.Model(&domain.Order{}).
+		Where("id = ? AND customer_id = ? AND status = ?", orderID, customerID, domain.OrderStatusPending).
+		Update("status", domain.OrderStatusCancelled)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("pesanan tidak ditemukan, bukan milik Anda, atau sudah diproses teknisi sehingga tidak dapat dibatalkan")
 	}
 
 	return nil

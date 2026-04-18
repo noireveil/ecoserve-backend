@@ -31,6 +31,7 @@ func NewOrderHandler(app *fiber.App, usecase usecase.OrderUsecase) {
 	api.Get("/:id", middleware.Protected(), handler.GetDetail)
 	api.Put("/:id/accept", middleware.Protected(), handler.Accept)
 	api.Put("/:id/complete", middleware.Protected(), handler.Complete)
+	api.Put("/:id/cancel", middleware.Protected(), handler.Cancel)
 }
 
 // @Summary Mendapatkan Detail Pesanan
@@ -186,6 +187,35 @@ func (h *OrderHandler) Accept(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Pesanan berhasil diambil, silakan menuju ke lokasi konsumen.",
+	})
+}
+
+// @Summary Membatalkan Pesanan
+// @Description Membatalkan pesanan yang masih berstatus PENDING oleh konsumen.
+// @Tags Orders
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "ID Pesanan (UUID)"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/orders/{id}/cancel [put]
+func (h *OrderHandler) Cancel(c *fiber.Ctx) error {
+	orderID := c.Params("id")
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Sesi tidak valid"})
+	}
+
+	role, _ := c.Locals("role").(string)
+	if role != "customer" {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Hanya konsumen yang dapat membatalkan pesanan"})
+	}
+
+	if err := h.orderUsecase.CancelOrder(orderID, userIDStr); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Pesanan berhasil dibatalkan.",
 	})
 }
 

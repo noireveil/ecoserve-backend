@@ -323,6 +323,28 @@ paths:
       summary: Menerima Pesanan Masuk
       tags:
       - Orders
+  /api/orders/{id}/cancel:
+    put:
+      description: Membatalkan pesanan yang masih berstatus PENDING oleh konsumen.
+      parameters:
+      - description: ID Pesanan (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Membatalkan Pesanan
+      tags:
+      - Orders
   /api/orders/{id}/complete:
     put:
       consumes:

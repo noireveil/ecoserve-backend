@@ -12,6 +12,7 @@ const (
 	OrderStatusPending   OrderStatus = "PENDING"
 	OrderStatusAccepted  OrderStatus = "ACCEPTED"
 	OrderStatusCompleted OrderStatus = "COMPLETED"
+	OrderStatusCancelled OrderStatus = "CANCELLED"
 )
 
 type Order struct {

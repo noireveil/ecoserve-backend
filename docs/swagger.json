@@ -342,6 +342,41 @@
                 }
             }
         },
+        "/api/orders/{id}/cancel": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Membatalkan pesanan yang masih berstatus PENDING oleh konsumen.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Membatalkan Pesanan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Pesanan (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/orders/{id}/complete": {
             "put": {
                 "security": [
