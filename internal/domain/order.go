@@ -34,6 +34,7 @@ type Order struct {
 	PhotoProofURL      *string                 `gorm:"type:text"`
 	GPSLockCoord       *string                 `gorm:"type:geometry(Point,4326)"`
 	IsDualConfirmed    bool                    `gorm:"default:false"`
+	IsReviewed         bool                    `gorm:"default:false" json:"is_reviewed"`
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
 }

@@ -46,6 +46,12 @@ func (r *reviewRepository) CreateAndUpdateRating(review *domain.Review) error {
 			return err
 		}
 
+		if err := tx.Model(&domain.Order{}).
+			Where("id = ?", review.OrderID).
+			Update("is_reviewed", true).Error; err != nil {
+			return err
+		}
+
 		return nil
 	})
 }
