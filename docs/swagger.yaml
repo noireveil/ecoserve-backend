@@ -90,6 +90,12 @@ definitions:
         example: 5
         type: integer
     type: object
+  internal_delivery_http_handlers.SendMessagePayload:
+    properties:
+      content:
+        example: Halo teknisi, posisi di mana ya?
+        type: string
+    type: object
   internal_delivery_http_handlers.TriageRequest:
     properties:
       latitude:
@@ -376,6 +382,73 @@ paths:
       summary: Menyelesaikan Transaksi & Kalkulasi Emisi (Anti-Fraud)
       tags:
       - Orders
+  /api/orders/{orderId}/messages:
+    get:
+      description: Mengambil riwayat percakapan berdasarkan Order ID
+      parameters:
+      - description: ID Pesanan (UUID)
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mengambil histori pesan
+      tags:
+      - Chat
+    post:
+      consumes:
+      - application/json
+      description: Endpoint untuk customer dan teknisi mengirim pesan chat. Realtime
+        di-handle oleh Supabase di frontend.
+      parameters:
+      - description: ID Pesanan (UUID)
+        in: path
+        name: orderId
+        required: true
+        type: string
+      - description: Data Pesan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_delivery_http_handlers.SendMessagePayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mengirim pesan ke dalam room order
+      tags:
+      - Chat
   /api/orders/incoming:
     get:
       description: Mengambil daftar pesanan yang berstatus PENDING dan belum memiliki

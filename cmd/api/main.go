@@ -107,12 +107,14 @@ func main() {
 	orderRepo := repository.NewOrderRepository(config.DB)
 	deviceRepo := repository.NewDeviceRepository(config.DB)
 	reviewRepo := repository.NewReviewRepository(config.DB)
+	messageRepo := repository.NewMessageRepository(config.DB)
 
 	userUsecase := usecase.NewUserUsecase(userRepo)
 	techUsecase := usecase.NewTechnicianUsecase(techRepo, userRepo)
 	orderUsecase := usecase.NewOrderUsecase(orderRepo, techRepo)
 	deviceUsecase := usecase.NewDeviceUsecase(deviceRepo)
 	reviewUsecase := usecase.NewReviewUsecase(reviewRepo, orderRepo)
+	messageUsecase := usecase.NewMessageUsecase(messageRepo, orderRepo)
 
 	handlers.NewUserHandler(app, userUsecase)
 	handlers.NewTechnicianHandler(app, techUsecase)
@@ -120,6 +122,7 @@ func main() {
 	handlers.NewDeviceHandler(app, deviceUsecase)
 	handlers.NewChatbotHandler(app, techUsecase)
 	handlers.NewReviewHandler(app, reviewUsecase)
+	handlers.NewMessageHandler(app, messageUsecase)
 
 	port := os.Getenv("PORT")
 	if port == "" {
