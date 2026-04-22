@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/noireveil/ecoserve-backend/internal/domain"
@@ -38,10 +39,12 @@ func (r *orderRepository) FindByID(id string) (*domain.Order, error) {
 
 func (r *orderRepository) FindByUserID(userID string) ([]domain.Order, error) {
 	var orders []domain.Order
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+
 	err := r.db.Preload("Customer").
 		Preload("Technician.User").
 		Joins("LEFT JOIN technicians ON technicians.id = orders.technician_id").
-		Where("orders.customer_id = ? OR technicians.user_id = ?", userID, userID).
+		Where("(orders.customer_id = ? OR technicians.user_id = ?) AND orders.created_at >= ?", userID, userID, threeMonthsAgo).
 		Order("orders.created_at desc").
 		Find(&orders).Error
 	return orders, err

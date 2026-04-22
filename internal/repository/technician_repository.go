@@ -87,9 +87,11 @@ func (r *technicianRepository) GetPerformanceByUserID(userID string) (float32, i
 		TotalCo2     float64
 	}
 
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+
 	err := r.db.Table("technicians").
 		Select("technicians.rating, COUNT(orders.id) as total_repairs, COALESCE(SUM(orders.e_waste_saved_kg), 0) as total_co2").
-		Joins("LEFT JOIN orders ON orders.technician_id = technicians.id AND orders.status = ?", domain.OrderStatusCompleted).
+		Joins("LEFT JOIN orders ON orders.technician_id = technicians.id AND orders.status = ? AND orders.created_at >= ?", domain.OrderStatusCompleted, threeMonthsAgo).
 		Where("technicians.user_id = ?", userID).
 		Group("technicians.id").
 		Scan(&result).Error
@@ -99,8 +101,10 @@ func (r *technicianRepository) GetPerformanceByUserID(userID string) (float32, i
 
 func (r *technicianRepository) GetEarningsData(userID string) (float64, float64, int, error) {
 	var orders []domain.Order
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+
 	err := r.db.Joins("JOIN technicians ON technicians.id = orders.technician_id").
-		Where("technicians.user_id = ? AND orders.status = ?", userID, domain.OrderStatusCompleted).
+		Where("technicians.user_id = ? AND orders.status = ? AND orders.created_at >= ?", userID, domain.OrderStatusCompleted, threeMonthsAgo).
 		Find(&orders).Error
 
 	if err != nil {
