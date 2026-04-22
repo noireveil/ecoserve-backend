@@ -17,7 +17,12 @@ const docTemplate = `{
     "paths": {
         "/api/chatbot/triage": {
             "post": {
-                "description": "Menganalisis kerusakan dan memberikan panduan atau merujuk ke teknisi terdekat berdasarkan Confidence Gate.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Mengirimkan keluhan kerusakan elektronik dan foto ke Gemini AI Vision untuk dianalisis.",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,15 +32,15 @@ const docTemplate = `{
                 "tags": [
                     "Chatbot"
                 ],
-                "summary": "Triase Kerusakan via AI",
+                "summary": "AI Triage Keluhan Elektronik (Multimodal)",
                 "parameters": [
                     {
-                        "description": "Data Keluhan dan Geospasial",
+                        "description": "Data Keluhan dan Foto",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.TriageRequest"
+                            "$ref": "#/definitions/handlers.TriagePayload"
                         }
                     }
                 ],
@@ -1154,7 +1159,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.TriageRequest": {
+        "handlers.TriagePayload": {
             "type": "object",
             "properties": {
                 "latitude": {
@@ -1167,7 +1172,11 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string",
-                    "example": "Kompresor kulkas saya mati dan bau hangus."
+                    "example": "Kulkas saya bocor dan berbunyi bising"
+                },
+                "photo": {
+                    "type": "string",
+                    "example": "base64_encoded_string_or_url"
                 }
             }
         },

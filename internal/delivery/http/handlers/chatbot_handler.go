@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,9 +10,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/noireveil/ecoserve-backend/internal/delivery/http/middleware"
 	"github.com/noireveil/ecoserve-backend/internal/usecase"
 )
 
@@ -27,36 +30,39 @@ type GeminiTriageResponse struct {
 	IsDIYEligible   bool    `json:"is_diy_eligible"`
 }
 
-type TriageRequest struct {
-	Message   string  `json:"message" example:"Kompresor kulkas saya mati dan bau hangus."`
+type TriagePayload struct {
+	Message   string  `json:"message" example:"Kulkas saya bocor dan berbunyi bising"`
+	Photo     string  `json:"photo" example:"base64_encoded_string_or_url"`
 	Longitude float64 `json:"longitude" example:"106.8229"`
 	Latitude  float64 `json:"latitude" example:"-6.1944"`
 }
 
-func NewChatbotHandler(app *fiber.App, techUsecase usecase.TechnicianUsecase) {
-	handler := &ChatbotHandler{techUsecase: techUsecase}
+func NewChatbotHandler(app *fiber.App, usecase usecase.TechnicianUsecase) {
+	handler := &ChatbotHandler{techUsecase: usecase}
+
 	api := app.Group("/api/chatbot")
-	api.Post("/triage", handler.Triage)
+	api.Post("/triage", middleware.Protected(), handler.Triage)
 }
 
-// @Summary Triase Kerusakan via AI
-// @Description Menganalisis kerusakan dan memberikan panduan atau merujuk ke teknisi terdekat berdasarkan Confidence Gate.
+// @Summary AI Triage Keluhan Elektronik (Multimodal)
+// @Description Mengirimkan keluhan kerusakan elektronik dan foto ke Gemini AI Vision untuk dianalisis.
 // @Tags Chatbot
 // @Accept json
 // @Produce json
-// @Param request body TriageRequest true "Data Keluhan dan Geospasial"
+// @Security ApiKeyAuth
+// @Param request body TriagePayload true "Data Keluhan dan Foto"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Router /api/chatbot/triage [post]
 func (h *ChatbotHandler) Triage(c *fiber.Ctx) error {
-	var req TriageRequest
+	var req TriagePayload
 
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format permintaan tidak valid"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Format JSON tidak valid"})
 	}
 
-	if req.Message == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Pesan keluhan tidak boleh kosong"})
+	if req.Message == "" && req.Photo == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Pesan keluhan atau foto tidak boleh kosong"})
 	}
 
 	apiKey := os.Getenv("GEMINI_API_KEY")
@@ -64,7 +70,7 @@ func (h *ChatbotHandler) Triage(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Konfigurasi AI belum diatur"})
 	}
 
-	replyJSON, err := h.callGeminiAPI(apiKey, req.Message)
+	replyJSON, err := h.callGeminiAPI(apiKey, req.Message, req.Photo)
 	if err != nil {
 		log.Printf("[Gemini API Error]: %v\n", err)
 		return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{"error": "Gagal memproses diagnosis AI"})
@@ -102,19 +108,55 @@ func (h *ChatbotHandler) Triage(c *fiber.Ctx) error {
 	})
 }
 
-func (h *ChatbotHandler) callGeminiAPI(apiKey, userMessage string) (string, error) {
+func (h *ChatbotHandler) callGeminiAPI(apiKey, userMessage, photoData string) (string, error) {
 	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey
 
 	systemInstruction := `Berperanlah sebagai AI Diagnostik Teknis Senior.
 Anda WAJIB memberikan respons DALAM FORMAT JSON MURNI tanpa teks pembuka atau penutup.
 Gunakan struktur skema JSON berikut:
 {
-  "analysis": "Penjelasan teknis komponen yang rusak",
+  "analysis": "Penjelasan teknis komponen yang rusak berdasarkan deskripsi atau gambar",
   "mitigation": "Langkah darurat keamanan operasional",
-  "category": "Pilih satu: [Pendingin & Komersial, Home Appliances, IT & Gadget]",
+  "category": "Pilih satu: [Pendingin & Komersial, Home Appliances, IT & Gadget, Perangkat Lainnya]",
   "confidence_score": <angka desimal antara 0.00 hingga 1.00 tingkat kepastian diagnosis>,
   "is_diy_eligible": <boolean true jika aman diperbaiki konsumen, false jika butuh alat khusus/berisiko>
 }`
+
+	var userParts []map[string]interface{}
+
+	if userMessage != "" {
+		userParts = append(userParts, map[string]interface{}{
+			"text": userMessage,
+		})
+	}
+
+	if photoData != "" {
+		mimeType := "image/jpeg"
+		base64String := photoData
+
+		if strings.HasPrefix(photoData, "data:image/") {
+			parts := strings.SplitN(photoData, ";base64,", 2)
+			if len(parts) == 2 {
+				mimeType = strings.TrimPrefix(parts[0], "data:")
+				base64String = parts[1]
+			}
+		} else if strings.HasPrefix(photoData, "http://") || strings.HasPrefix(photoData, "https://") {
+			imgBytes, err := fetchImageFromURL(photoData)
+			if err == nil {
+				base64String = base64.StdEncoding.EncodeToString(imgBytes)
+				mimeType = detectMimeType(imgBytes)
+			}
+		}
+
+		if base64String != "" {
+			userParts = append(userParts, map[string]interface{}{
+				"inline_data": map[string]string{
+					"mime_type": mimeType,
+					"data":      base64String,
+				},
+			})
+		}
+	}
 
 	payload := map[string]interface{}{
 		"system_instruction": map[string]interface{}{
@@ -126,9 +168,7 @@ Gunakan struktur skema JSON berikut:
 		},
 		"contents": []map[string]interface{}{
 			{
-				"parts": []map[string]string{
-					{"text": userMessage},
-				},
+				"parts": userParts,
 			},
 		},
 		"generationConfig": map[string]interface{}{
@@ -141,7 +181,7 @@ Gunakan struktur skema JSON berikut:
 		return "", err
 	}
 
-	client := &http.Client{Timeout: 15 * time.Second}
+	client := &http.Client{Timeout: 30 * time.Second}
 	maxRetries := 3
 	var resp *http.Response
 
@@ -155,10 +195,10 @@ Gunakan struktur skema JSON berikut:
 			break
 		}
 
-		if resp.StatusCode == http.StatusServiceUnavailable {
+		if resp.StatusCode == http.StatusServiceUnavailable || resp.StatusCode == http.StatusTooManyRequests {
 			_ = resp.Body.Close()
 			jedaWaktu := time.Duration(1<<attempt) * time.Second
-			log.Printf("[Gemini API] Server sibuk (503). Mencoba ulang (%d/%d) dalam %v...\n", attempt+1, maxRetries, jedaWaktu)
+			log.Printf("[Gemini API] Server sibuk (%d). Mencoba ulang (%d/%d) dalam %v...\n", resp.StatusCode, attempt+1, maxRetries, jedaWaktu)
 			time.Sleep(jedaWaktu)
 			continue
 		}
@@ -192,4 +232,27 @@ Gunakan struktur skema JSON berikut:
 	}
 
 	return "", errors.New("format respons tidak dikenali dari Google API")
+}
+
+func fetchImageFromURL(url string) ([]byte, error) {
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch image: status code %d", resp.StatusCode)
+	}
+
+	return io.ReadAll(resp.Body)
+}
+
+func detectMimeType(data []byte) string {
+	mimeType := http.DetectContentType(data)
+	if mimeType == "application/octet-stream" {
+		return "image/jpeg"
+	}
+	return mimeType
 }

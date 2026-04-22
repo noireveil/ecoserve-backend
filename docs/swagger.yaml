@@ -70,7 +70,7 @@ definitions:
         example: Halo teknisi, posisi di mana ya?
         type: string
     type: object
-  handlers.TriageRequest:
+  handlers.TriagePayload:
     properties:
       latitude:
         example: -6.1944
@@ -79,7 +79,10 @@ definitions:
         example: 106.8229
         type: number
       message:
-        example: Kompresor kulkas saya mati dan bau hangus.
+        example: Kulkas saya bocor dan berbunyi bising
+        type: string
+      photo:
+        example: base64_encoded_string_or_url
         type: string
     type: object
   handlers.UpdateAvailabilityPayload:
@@ -133,15 +136,15 @@ paths:
     post:
       consumes:
       - application/json
-      description: Menganalisis kerusakan dan memberikan panduan atau merujuk ke teknisi
-        terdekat berdasarkan Confidence Gate.
+      description: Mengirimkan keluhan kerusakan elektronik dan foto ke Gemini AI
+        Vision untuk dianalisis.
       parameters:
-      - description: Data Keluhan dan Geospasial
+      - description: Data Keluhan dan Foto
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.TriageRequest'
+          $ref: '#/definitions/handlers.TriagePayload'
       produces:
       - application/json
       responses:
@@ -155,7 +158,9 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: Triase Kerusakan via AI
+      security:
+      - ApiKeyAuth: []
+      summary: AI Triage Keluhan Elektronik (Multimodal)
       tags:
       - Chatbot
   /api/devices/:
