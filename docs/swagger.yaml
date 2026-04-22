@@ -1,32 +1,6 @@
 basePath: /
 definitions:
-  github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest:
-    properties:
-      category:
-        type: string
-      device_weight:
-        type: number
-      distance_km:
-        type: number
-      latitude:
-        type: number
-      longitude:
-        type: number
-      photo_url:
-        type: string
-      service_fee:
-        type: number
-    type: object
-  github_com_noireveil_ecoserve-backend_internal_usecase.UpdateProfileRequest:
-    properties:
-      full_name:
-        example: EcoServe Tester
-        type: string
-      profile_picture_url:
-        example: https://storage.com/photo.jpg
-        type: string
-    type: object
-  internal_delivery_http_handlers.CreateDevicePayload:
+  handlers.CreateDevicePayload:
     properties:
       brand_name:
         example: Apple iPhone 14 Pro
@@ -38,7 +12,7 @@ definitions:
         example: 0.21
         type: number
     type: object
-  internal_delivery_http_handlers.CreateOrderPayload:
+  handlers.CreateOrderPayload:
     properties:
       customer_latitude:
         type: number
@@ -57,7 +31,7 @@ definitions:
         example: (Opsional) uuid-teknisi
         type: string
     type: object
-  internal_delivery_http_handlers.RegisterTechnicianRequest:
+  handlers.RegisterTechnicianRequest:
     properties:
       experience_years:
         example: 5
@@ -72,7 +46,7 @@ definitions:
         example: Pendingin & Komersial
         type: string
     type: object
-  internal_delivery_http_handlers.RequestOTPPayload:
+  handlers.RequestOTPPayload:
     properties:
       email:
         example: eco.security@ecoserve.com
@@ -81,7 +55,7 @@ definitions:
         example: EcoServe Tester
         type: string
     type: object
-  internal_delivery_http_handlers.ReviewRequestPayload:
+  handlers.ReviewRequestPayload:
     properties:
       comment:
         example: Teknisi sangat profesional dan jujur!
@@ -90,13 +64,13 @@ definitions:
         example: 5
         type: integer
     type: object
-  internal_delivery_http_handlers.SendMessagePayload:
+  handlers.SendMessagePayload:
     properties:
       content:
         example: Halo teknisi, posisi di mana ya?
         type: string
     type: object
-  internal_delivery_http_handlers.TriageRequest:
+  handlers.TriageRequest:
     properties:
       latitude:
         example: -6.1944
@@ -108,18 +82,44 @@ definitions:
         example: Kompresor kulkas saya mati dan bau hangus.
         type: string
     type: object
-  internal_delivery_http_handlers.UpdateAvailabilityPayload:
+  handlers.UpdateAvailabilityPayload:
     properties:
       is_available:
         type: boolean
     type: object
-  internal_delivery_http_handlers.VerifyOTPPayload:
+  handlers.VerifyOTPPayload:
     properties:
       code:
         example: "123456"
         type: string
       email:
         example: ecosecurity@ecoserve.com
+        type: string
+    type: object
+  usecase.CompleteOrderRequest:
+    properties:
+      category:
+        type: string
+      device_weight:
+        type: number
+      distance_km:
+        type: number
+      latitude:
+        type: number
+      longitude:
+        type: number
+      photo_url:
+        type: string
+      service_fee:
+        type: number
+    type: object
+  usecase.UpdateProfileRequest:
+    properties:
+      full_name:
+        example: EcoServe Tester
+        type: string
+      profile_picture_url:
+        example: https://storage.com/photo.jpg
         type: string
     type: object
 info:
@@ -141,7 +141,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_delivery_http_handlers.TriageRequest'
+          $ref: '#/definitions/handlers.TriageRequest'
       produces:
       - application/json
       responses:
@@ -185,7 +185,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_delivery_http_handlers.CreateDevicePayload'
+          $ref: '#/definitions/handlers.CreateDevicePayload'
       produces:
       - application/json
       responses:
@@ -270,7 +270,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_delivery_http_handlers.CreateOrderPayload'
+          $ref: '#/definitions/handlers.CreateOrderPayload'
       produces:
       - application/json
       responses:
@@ -368,7 +368,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest'
+          $ref: '#/definitions/usecase.CompleteOrderRequest'
       produces:
       - application/json
       responses:
@@ -425,7 +425,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_delivery_http_handlers.SendMessagePayload'
+          $ref: '#/definitions/handlers.SendMessagePayload'
       produces:
       - application/json
       responses:
@@ -484,7 +484,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_delivery_http_handlers.ReviewRequestPayload'
+          $ref: '#/definitions/handlers.ReviewRequestPayload'
       produces:
       - application/json
       responses:
@@ -523,7 +523,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_delivery_http_handlers.RegisterTechnicianRequest'
+          $ref: '#/definitions/handlers.RegisterTechnicianRequest'
       produces:
       - application/json
       responses:
@@ -538,6 +538,22 @@ paths:
       tags:
       - Technicians
   /api/technicians/availability:
+    get:
+      description: Mengambil status online/offline teknisi yang sedang login untuk
+        sinkronisasi UI toggle.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Mendapatkan Status Ketersediaan Teknisi
+      tags:
+      - Technicians
     put:
       consumes:
       - application/json
@@ -549,7 +565,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_delivery_http_handlers.UpdateAvailabilityPayload'
+          $ref: '#/definitions/handlers.UpdateAvailabilityPayload'
       produces:
       - application/json
       responses:
@@ -650,7 +666,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_delivery_http_handlers.RequestOTPPayload'
+          $ref: '#/definitions/handlers.RequestOTPPayload'
       produces:
       - application/json
       responses:
@@ -674,7 +690,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_delivery_http_handlers.VerifyOTPPayload'
+          $ref: '#/definitions/handlers.VerifyOTPPayload'
       produces:
       - application/json
       responses:
@@ -750,7 +766,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.UpdateProfileRequest'
+          $ref: '#/definitions/usecase.UpdateProfileRequest'
       produces:
       - application/json
       responses:

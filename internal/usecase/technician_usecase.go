@@ -25,6 +25,7 @@ type TechnicianUsecase interface {
 	GetPerformance(userID string) (TechnicianPerformanceDTO, error)
 	GetEarnings(userID string) (TechnicianEarningsDTO, error)
 	UpdateAvailability(userID string, isAvailable bool) error
+	GetAvailability(userID string) (bool, error)
 }
 
 type technicianUsecase struct {
@@ -52,6 +53,10 @@ func (u *technicianUsecase) UpdateAvailability(userID string, isAvailable bool) 
 	return u.techRepo.UpdateAvailability(userID, isAvailable)
 }
 
+func (u *technicianUsecase) GetAvailability(userID string) (bool, error) {
+	return u.techRepo.GetAvailabilityByUserID(userID)
+}
+
 func (u *technicianUsecase) GetPerformance(userID string) (TechnicianPerformanceDTO, error) {
 	rating, repairs, co2, err := u.techRepo.GetPerformanceByUserID(userID)
 	if err != nil {
@@ -68,7 +73,7 @@ func (u *technicianUsecase) GetPerformance(userID string) (TechnicianPerformance
 func (u *technicianUsecase) GetEarnings(userID string) (TechnicianEarningsDTO, error) {
 	total, thisMonth, completed, err := u.techRepo.GetEarningsData(userID)
 	if err != nil {
-		return TechnicianEarningsDTO{}, errors.New("gagal mengkalkulasi data pendapatan teknisi")
+		return TechnicianEarningsDTO{}, errors.New("gagal mengambil data pendapatan")
 	}
 
 	return TechnicianEarningsDTO{

@@ -33,7 +33,32 @@ func NewTechnicianHandler(app *fiber.App, usecase usecase.TechnicianUsecase) {
 	api.Get("/nearby", handler.GetNearby)
 	api.Get("/performance", middleware.Protected(), handler.GetPerformance)
 	api.Get("/earnings", middleware.Protected(), handler.GetEarnings)
+	api.Get("/availability", middleware.Protected(), handler.GetAvailability)
 	api.Put("/availability", middleware.Protected(), handler.UpdateAvailability)
+}
+
+// @Summary Mendapatkan Status Ketersediaan Teknisi
+// @Description Mengambil status online/offline teknisi yang sedang login untuk sinkronisasi UI toggle.
+// @Tags Technicians
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /api/technicians/availability [get]
+func (h *TechnicianHandler) GetAvailability(c *fiber.Ctx) error {
+	userIDStr, ok := c.Locals("user_id").(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Akses ditolak: Sesi tidak valid"})
+	}
+
+	isAvailable, err := h.techUsecase.GetAvailability(userIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal mengambil status ketersediaan"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Berhasil mengambil status ketersediaan",
+		"data":    fiber.Map{"is_available": isAvailable},
+	})
 }
 
 // @Summary Mendaftarkan Teknisi Baru

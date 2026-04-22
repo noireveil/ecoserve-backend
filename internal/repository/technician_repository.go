@@ -15,6 +15,7 @@ type TechnicianRepository interface {
 	GetPerformanceByUserID(userID string) (float32, int, float64, error)
 	GetEarningsData(userID string) (float64, float64, int, error)
 	UpdateAvailability(userID string, isAvailable bool) error
+	GetAvailabilityByUserID(userID string) (bool, error)
 }
 
 type technicianRepository struct {
@@ -49,7 +50,6 @@ func (r *technicianRepository) Create(technician *domain.Technician, lon float64
 
 func (r *technicianRepository) FindNearby(lon float64, lat float64, radiusKm int) ([]domain.Technician, error) {
 	var technicians []domain.Technician
-
 	radiusMeters := radiusKm * 1000
 
 	err := r.db.Preload("User").
@@ -72,6 +72,14 @@ func (r *technicianRepository) UpdateAvailability(userID string, isAvailable boo
 	return r.db.Model(&domain.Technician{}).Where("user_id = ?", userID).Update("is_available", isAvailable).Error
 }
 
+func (r *technicianRepository) GetAvailabilityByUserID(userID string) (bool, error) {
+	var isAvailable bool
+	err := r.db.Model(&domain.Technician{}).
+		Where("user_id = ?", userID).
+		Pluck("is_available", &isAvailable).Error
+	return isAvailable, err
+}
+
 func (r *technicianRepository) GetPerformanceByUserID(userID string) (float32, int, float64, error) {
 	var result struct {
 		Rating       float32
@@ -86,11 +94,7 @@ func (r *technicianRepository) GetPerformanceByUserID(userID string) (float32, i
 		Group("technicians.id").
 		Scan(&result).Error
 
-	if err != nil {
-		return 0, 0, 0, err
-	}
-
-	return result.Rating, result.TotalRepairs, result.TotalCo2, nil
+	return result.Rating, result.TotalRepairs, result.TotalCo2, err
 }
 
 func (r *technicianRepository) GetEarningsData(userID string) (float64, float64, int, error) {
