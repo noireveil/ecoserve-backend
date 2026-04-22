@@ -124,11 +124,13 @@ Gunakan struktur skema JSON berikut:
 
 	var userParts []map[string]interface{}
 
-	if userMessage != "" {
-		userParts = append(userParts, map[string]interface{}{
-			"text": userMessage,
-		})
+	if userMessage == "" {
+		userMessage = "Tolong analisis kerusakan pada perangkat di gambar ini dan berikan diagnosis teknisnya."
 	}
+
+	userParts = append(userParts, map[string]interface{}{
+		"text": userMessage,
+	})
 
 	if photoData != "" {
 		mimeType := "image/jpeg"
@@ -145,21 +147,26 @@ Gunakan struktur skema JSON berikut:
 			if err == nil {
 				base64String = base64.StdEncoding.EncodeToString(imgBytes)
 				mimeType = detectMimeType(imgBytes)
+			} else {
+				log.Printf("[Image Fetch Error]: %v\n", err)
 			}
 		}
 
 		if base64String != "" {
+			cleanBase64 := strings.ReplaceAll(base64String, "\n", "")
+			cleanBase64 = strings.ReplaceAll(cleanBase64, " ", "")
+
 			userParts = append(userParts, map[string]interface{}{
-				"inline_data": map[string]string{
-					"mime_type": mimeType,
-					"data":      base64String,
+				"inlineData": map[string]string{
+					"mimeType": mimeType,
+					"data":     cleanBase64,
 				},
 			})
 		}
 	}
 
 	payload := map[string]interface{}{
-		"system_instruction": map[string]interface{}{
+		"systemInstruction": map[string]interface{}{
 			"parts": []map[string]string{
 				{
 					"text": systemInstruction,
@@ -236,7 +243,14 @@ Gunakan struktur skema JSON berikut:
 
 func fetchImageFromURL(url string) ([]byte, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Get(url)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

@@ -33,7 +33,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.TriagePayload"
+                            "$ref": "#/definitions/internal_delivery_http_handlers.TriagePayload"
                         }
                     }
                 ],
@@ -104,7 +104,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.CreateDevicePayload"
+                            "$ref": "#/definitions/internal_delivery_http_handlers.CreateDevicePayload"
                         }
                     }
                 ],
@@ -236,7 +236,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.CreateOrderPayload"
+                            "$ref": "#/definitions/internal_delivery_http_handlers.CreateOrderPayload"
                         }
                     }
                 ],
@@ -414,7 +414,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/usecase.CompleteOrderRequest"
+                            "$ref": "#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest"
                         }
                     }
                 ],
@@ -501,7 +501,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.SendMessagePayload"
+                            "$ref": "#/definitions/internal_delivery_http_handlers.SendMessagePayload"
                         }
                     }
                 ],
@@ -562,7 +562,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.ReviewRequestPayload"
+                            "$ref": "#/definitions/internal_delivery_http_handlers.ReviewRequestPayload"
                         }
                     }
                 ],
@@ -622,7 +622,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.RegisterTechnicianRequest"
+                            "$ref": "#/definitions/internal_delivery_http_handlers.RegisterTechnicianRequest"
                         }
                     }
                 ],
@@ -686,7 +686,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UpdateAvailabilityPayload"
+                            "$ref": "#/definitions/internal_delivery_http_handlers.UpdateAvailabilityPayload"
                         }
                     }
                 ],
@@ -837,7 +837,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.RequestOTPPayload"
+                            "$ref": "#/definitions/internal_delivery_http_handlers.RequestOTPPayload"
                         }
                     }
                 ],
@@ -872,7 +872,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.VerifyOTPPayload"
+                            "$ref": "#/definitions/internal_delivery_http_handlers.VerifyOTPPayload"
                         }
                     }
                 ],
@@ -950,7 +950,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/usecase.UpdateProfileRequest"
+                            "$ref": "#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.UpdateProfileRequest"
                         }
                     }
                 ],
@@ -1052,7 +1052,46 @@
         }
     },
     "definitions": {
-        "handlers.CreateDevicePayload": {
+        "github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "device_weight": {
+                    "type": "number"
+                },
+                "distance_km": {
+                    "type": "number"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "photo_url": {
+                    "type": "string"
+                },
+                "service_fee": {
+                    "type": "number"
+                }
+            }
+        },
+        "github_com_noireveil_ecoserve-backend_internal_usecase.UpdateProfileRequest": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string",
+                    "example": "EcoServe Tester"
+                },
+                "profile_picture_url": {
+                    "type": "string",
+                    "example": "https://storage.com/photo.jpg"
+                }
+            }
+        },
+        "internal_delivery_http_handlers.CreateDevicePayload": {
             "type": "object",
             "properties": {
                 "brand_name": {
@@ -1069,7 +1108,7 @@
                 }
             }
         },
-        "handlers.CreateOrderPayload": {
+        "internal_delivery_http_handlers.CreateOrderPayload": {
             "type": "object",
             "properties": {
                 "customer_latitude": {
@@ -1096,7 +1135,7 @@
                 }
             }
         },
-        "handlers.RegisterTechnicianRequest": {
+        "internal_delivery_http_handlers.RegisterTechnicianRequest": {
             "type": "object",
             "properties": {
                 "experience_years": {
@@ -1117,7 +1156,7 @@
                 }
             }
         },
-        "handlers.RequestOTPPayload": {
+        "internal_delivery_http_handlers.RequestOTPPayload": {
             "type": "object",
             "properties": {
                 "email": {
@@ -1130,7 +1169,7 @@
                 }
             }
         },
-        "handlers.ReviewRequestPayload": {
+        "internal_delivery_http_handlers.ReviewRequestPayload": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -1143,7 +1182,7 @@
                 }
             }
         },
-        "handlers.SendMessagePayload": {
+        "internal_delivery_http_handlers.SendMessagePayload": {
             "type": "object",
             "properties": {
                 "content": {
@@ -1152,7 +1191,7 @@
                 }
             }
         },
-        "handlers.TriagePayload": {
+        "internal_delivery_http_handlers.TriagePayload": {
             "type": "object",
             "properties": {
                 "latitude": {
@@ -1173,7 +1212,7 @@
                 }
             }
         },
-        "handlers.UpdateAvailabilityPayload": {
+        "internal_delivery_http_handlers.UpdateAvailabilityPayload": {
             "type": "object",
             "properties": {
                 "is_available": {
@@ -1181,7 +1220,7 @@
                 }
             }
         },
-        "handlers.VerifyOTPPayload": {
+        "internal_delivery_http_handlers.VerifyOTPPayload": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1191,45 +1230,6 @@
                 "email": {
                     "type": "string",
                     "example": "ecosecurity@ecoserve.com"
-                }
-            }
-        },
-        "usecase.CompleteOrderRequest": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "device_weight": {
-                    "type": "number"
-                },
-                "distance_km": {
-                    "type": "number"
-                },
-                "latitude": {
-                    "type": "number"
-                },
-                "longitude": {
-                    "type": "number"
-                },
-                "photo_url": {
-                    "type": "string"
-                },
-                "service_fee": {
-                    "type": "number"
-                }
-            }
-        },
-        "usecase.UpdateProfileRequest": {
-            "type": "object",
-            "properties": {
-                "full_name": {
-                    "type": "string",
-                    "example": "EcoServe Tester"
-                },
-                "profile_picture_url": {
-                    "type": "string",
-                    "example": "https://storage.com/photo.jpg"
                 }
             }
         }

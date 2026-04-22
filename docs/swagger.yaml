@@ -1,6 +1,32 @@
 basePath: /
 definitions:
-  handlers.CreateDevicePayload:
+  github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest:
+    properties:
+      category:
+        type: string
+      device_weight:
+        type: number
+      distance_km:
+        type: number
+      latitude:
+        type: number
+      longitude:
+        type: number
+      photo_url:
+        type: string
+      service_fee:
+        type: number
+    type: object
+  github_com_noireveil_ecoserve-backend_internal_usecase.UpdateProfileRequest:
+    properties:
+      full_name:
+        example: EcoServe Tester
+        type: string
+      profile_picture_url:
+        example: https://storage.com/photo.jpg
+        type: string
+    type: object
+  internal_delivery_http_handlers.CreateDevicePayload:
     properties:
       brand_name:
         example: Apple iPhone 14 Pro
@@ -12,7 +38,7 @@ definitions:
         example: 0.21
         type: number
     type: object
-  handlers.CreateOrderPayload:
+  internal_delivery_http_handlers.CreateOrderPayload:
     properties:
       customer_latitude:
         type: number
@@ -31,7 +57,7 @@ definitions:
         example: (Opsional) uuid-teknisi
         type: string
     type: object
-  handlers.RegisterTechnicianRequest:
+  internal_delivery_http_handlers.RegisterTechnicianRequest:
     properties:
       experience_years:
         example: 5
@@ -46,7 +72,7 @@ definitions:
         example: Pendingin & Komersial
         type: string
     type: object
-  handlers.RequestOTPPayload:
+  internal_delivery_http_handlers.RequestOTPPayload:
     properties:
       email:
         example: eco.security@ecoserve.com
@@ -55,7 +81,7 @@ definitions:
         example: EcoServe Tester
         type: string
     type: object
-  handlers.ReviewRequestPayload:
+  internal_delivery_http_handlers.ReviewRequestPayload:
     properties:
       comment:
         example: Teknisi sangat profesional dan jujur!
@@ -64,13 +90,13 @@ definitions:
         example: 5
         type: integer
     type: object
-  handlers.SendMessagePayload:
+  internal_delivery_http_handlers.SendMessagePayload:
     properties:
       content:
         example: Halo teknisi, posisi di mana ya?
         type: string
     type: object
-  handlers.TriagePayload:
+  internal_delivery_http_handlers.TriagePayload:
     properties:
       latitude:
         example: -6.1944
@@ -85,44 +111,18 @@ definitions:
         example: base64_encoded_string_or_url
         type: string
     type: object
-  handlers.UpdateAvailabilityPayload:
+  internal_delivery_http_handlers.UpdateAvailabilityPayload:
     properties:
       is_available:
         type: boolean
     type: object
-  handlers.VerifyOTPPayload:
+  internal_delivery_http_handlers.VerifyOTPPayload:
     properties:
       code:
         example: "123456"
         type: string
       email:
         example: ecosecurity@ecoserve.com
-        type: string
-    type: object
-  usecase.CompleteOrderRequest:
-    properties:
-      category:
-        type: string
-      device_weight:
-        type: number
-      distance_km:
-        type: number
-      latitude:
-        type: number
-      longitude:
-        type: number
-      photo_url:
-        type: string
-      service_fee:
-        type: number
-    type: object
-  usecase.UpdateProfileRequest:
-    properties:
-      full_name:
-        example: EcoServe Tester
-        type: string
-      profile_picture_url:
-        example: https://storage.com/photo.jpg
         type: string
     type: object
 info:
@@ -144,7 +144,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.TriagePayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.TriagePayload'
       produces:
       - application/json
       responses:
@@ -190,7 +190,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateDevicePayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.CreateDevicePayload'
       produces:
       - application/json
       responses:
@@ -275,7 +275,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateOrderPayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.CreateOrderPayload'
       produces:
       - application/json
       responses:
@@ -373,7 +373,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/usecase.CompleteOrderRequest'
+          $ref: '#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest'
       produces:
       - application/json
       responses:
@@ -430,7 +430,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.SendMessagePayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.SendMessagePayload'
       produces:
       - application/json
       responses:
@@ -489,7 +489,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.ReviewRequestPayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.ReviewRequestPayload'
       produces:
       - application/json
       responses:
@@ -528,7 +528,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.RegisterTechnicianRequest'
+          $ref: '#/definitions/internal_delivery_http_handlers.RegisterTechnicianRequest'
       produces:
       - application/json
       responses:
@@ -570,7 +570,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.UpdateAvailabilityPayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.UpdateAvailabilityPayload'
       produces:
       - application/json
       responses:
@@ -671,7 +671,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.RequestOTPPayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.RequestOTPPayload'
       produces:
       - application/json
       responses:
@@ -695,7 +695,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.VerifyOTPPayload'
+          $ref: '#/definitions/internal_delivery_http_handlers.VerifyOTPPayload'
       produces:
       - application/json
       responses:
@@ -771,7 +771,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/usecase.UpdateProfileRequest'
+          $ref: '#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.UpdateProfileRequest'
       produces:
       - application/json
       responses:
