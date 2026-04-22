@@ -73,7 +73,7 @@ func (h *ChatbotHandler) Triage(c *fiber.Ctx) error {
 	replyJSON, err := h.callGeminiAPI(apiKey, req.Message, req.Photo)
 	if err != nil {
 		log.Printf("[Gemini API Error]: %v\n", err)
-		return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{"error": "Gagal memproses diagnosis AI"})
+		return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	if len(replyJSON) > 7 && replyJSON[:7] == "```json" {
@@ -134,7 +134,7 @@ Gunakan struktur skema JSON berikut:
 
 	if photoData != "" {
 		mimeType := "image/jpeg"
-		base64String := photoData
+		base64String := ""
 
 		if strings.HasPrefix(photoData, "data:image/") {
 			parts := strings.SplitN(photoData, ";base64,", 2)
@@ -149,7 +149,10 @@ Gunakan struktur skema JSON berikut:
 				mimeType = detectMimeType(imgBytes)
 			} else {
 				log.Printf("[Image Fetch Error]: %v\n", err)
+				return "", fmt.Errorf("gagal mengunduh gambar dari URL, server gambar memblokir akses")
 			}
+		} else {
+			base64String = photoData
 		}
 
 		if base64String != "" {
@@ -179,7 +182,8 @@ Gunakan struktur skema JSON berikut:
 			},
 		},
 		"generationConfig": map[string]interface{}{
-			"temperature": 0.2,
+			"temperature":      0.2,
+			"responseMimeType": "application/json",
 		},
 	}
 
@@ -248,7 +252,9 @@ func fetchImageFromURL(url string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
+	req.Header.Set("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8")
 
 	resp, err := client.Do(req)
 	if err != nil {
