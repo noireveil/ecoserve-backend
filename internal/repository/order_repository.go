@@ -12,9 +12,9 @@ import (
 type OrderRepository interface {
 	Create(order *domain.Order) error
 	FindByID(id string) (*domain.Order, error)
-	FindByUserID(userID string) ([]domain.Order, error)
+	FindByUserID(userID string, limit, offset int) ([]domain.Order, error)
 	CompleteWithAntiFraud(id string, photoURL string, lon float64, lat float64, eWasteSaved, totalFee, platformFee, netFee float64) error
-	FindIncomingOrders() ([]domain.Order, error)
+	FindIncomingOrders(limit, offset int) ([]domain.Order, error)
 	AcceptOrder(orderID string, userID string) error
 	CancelOrder(orderID string, customerID string) error
 }
@@ -37,25 +37,38 @@ func (r *orderRepository) FindByID(id string) (*domain.Order, error) {
 	return &order, err
 }
 
-func (r *orderRepository) FindByUserID(userID string) ([]domain.Order, error) {
+func (r *orderRepository) FindByUserID(userID string, limit, offset int) ([]domain.Order, error) {
 	var orders []domain.Order
 	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+
+	if limit <= 0 {
+		limit = 10
+	}
 
 	err := r.db.Preload("Customer").
 		Preload("Technician.User").
 		Joins("LEFT JOIN technicians ON technicians.id = orders.technician_id").
 		Where("(orders.customer_id = ? OR technicians.user_id = ?) AND orders.created_at >= ?", userID, userID, threeMonthsAgo).
 		Order("orders.created_at desc").
+		Limit(limit).
+		Offset(offset).
 		Find(&orders).Error
 	return orders, err
 }
 
-func (r *orderRepository) FindIncomingOrders() ([]domain.Order, error) {
+func (r *orderRepository) FindIncomingOrders(limit, offset int) ([]domain.Order, error) {
 	var orders []domain.Order
+
+	if limit <= 0 {
+		limit = 10
+	}
+
 	err := r.db.Preload("Customer").
 		Where("status = ?", domain.OrderStatusPending).
 		Where("technician_id IS NULL").
 		Order("created_at desc").
+		Limit(limit).
+		Offset(offset).
 		Find(&orders).Error
 	return orders, err
 }

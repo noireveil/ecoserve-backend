@@ -20,10 +20,10 @@ type CompleteOrderRequest struct {
 
 type OrderUsecase interface {
 	CreateOrder(order *domain.Order) error
-	GetUserOrders(userID string) ([]domain.Order, error)
+	GetUserOrders(userID string, limit, offset int) ([]domain.Order, error)
 	GetOrderByID(orderID string) (*domain.Order, error)
 	CompleteOrder(orderID string, req CompleteOrderRequest) error
-	GetIncomingOrders() ([]domain.Order, error)
+	GetIncomingOrders(limit, offset int) ([]domain.Order, error)
 	AcceptOrder(orderID string, userID string) error
 	CancelOrder(orderID string, userID string) error
 }
@@ -67,16 +67,16 @@ func (u *orderUsecase) CreateOrder(order *domain.Order) error {
 	return nil
 }
 
-func (u *orderUsecase) GetUserOrders(userID string) ([]domain.Order, error) {
-	return u.orderRepo.FindByUserID(userID)
+func (u *orderUsecase) GetUserOrders(userID string, limit, offset int) ([]domain.Order, error) {
+	return u.orderRepo.FindByUserID(userID, limit, offset)
 }
 
 func (u *orderUsecase) GetOrderByID(orderID string) (*domain.Order, error) {
 	return u.orderRepo.FindByID(orderID)
 }
 
-func (u *orderUsecase) GetIncomingOrders() ([]domain.Order, error) {
-	return u.orderRepo.FindIncomingOrders()
+func (u *orderUsecase) GetIncomingOrders(limit, offset int) ([]domain.Order, error) {
+	return u.orderRepo.FindIncomingOrders(limit, offset)
 }
 
 func (u *orderUsecase) AcceptOrder(orderID string, userID string) error {
@@ -99,7 +99,7 @@ func (u *orderUsecase) CompleteOrder(orderID string, req CompleteOrderRequest) e
 	}
 
 	totalFee := req.ServiceFee
-	platformFee := totalFee * 0.10 // Take Rate 10%
+	platformFee := totalFee * 0.10
 	netFee := totalFee - platformFee
 
 	eWasteSaved := u.calculateImpactMetrics(req.DeviceWeight, req.Category, req.DistanceKm)

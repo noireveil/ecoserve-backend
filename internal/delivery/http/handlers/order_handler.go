@@ -60,10 +60,16 @@ func (h *OrderHandler) GetDetail(c *fiber.Ctx) error {
 // @Tags Orders
 // @Produce json
 // @Security ApiKeyAuth
+// @Param limit query int false "Limit data per halaman (Default: 10)"
+// @Param page query int false "Nomor halaman (Default: 1)"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/orders/incoming [get]
 func (h *OrderHandler) GetIncomingOrders(c *fiber.Ctx) error {
-	orders, err := h.orderUsecase.GetIncomingOrders()
+	limit := c.QueryInt("limit", 10)
+	page := c.QueryInt("page", 1)
+	offset := (page - 1) * limit
+
+	orders, err := h.orderUsecase.GetIncomingOrders(limit, offset)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal mengambil data pesanan masuk"})
 	}
@@ -79,6 +85,8 @@ func (h *OrderHandler) GetIncomingOrders(c *fiber.Ctx) error {
 // @Tags Orders
 // @Produce json
 // @Security ApiKeyAuth
+// @Param limit query int false "Limit data per halaman (Default: 10)"
+// @Param page query int false "Nomor halaman (Default: 1)"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/orders/ [get]
 func (h *OrderHandler) GetMyOrders(c *fiber.Ctx) error {
@@ -87,7 +95,11 @@ func (h *OrderHandler) GetMyOrders(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "User ID tidak ditemukan pada token"})
 	}
 
-	orders, err := h.orderUsecase.GetUserOrders(userIDStr)
+	limit := c.QueryInt("limit", 10)
+	page := c.QueryInt("page", 1)
+	offset := (page - 1) * limit
+
+	orders, err := h.orderUsecase.GetUserOrders(userIDStr, limit, offset)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal mengambil data pesanan"})
 	}
