@@ -40,11 +40,17 @@ func (u *messageUsecase) SendMessage(orderID, senderID, senderRole, content stri
 		return nil, errors.New("order not found")
 	}
 
-	if senderRole == "user" && order.CustomerID.String() != senderID {
-		return nil, errors.New("unauthorized access to order")
-	}
-	if senderRole == "technician" && (order.TechnicianID == nil || order.TechnicianID.String() != senderID) {
-		return nil, errors.New("unauthorized access to order")
+	switch senderRole {
+	case "customer":
+		if order.CustomerID.String() != senderID {
+			return nil, errors.New("unauthorized access to order")
+		}
+	case "technician":
+		if order.Technician == nil || order.Technician.UserID.String() != senderID {
+			return nil, errors.New("unauthorized access to order")
+		}
+	default:
+		return nil, errors.New("unauthorized role")
 	}
 
 	message := &domain.Message{

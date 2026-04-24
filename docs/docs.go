@@ -40,7 +40,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.TriagePayload"
+                            "$ref": "#/definitions/handlers.TriagePayload"
                         }
                     }
                 ],
@@ -111,7 +111,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.CreateDevicePayload"
+                            "$ref": "#/definitions/handlers.CreateDevicePayload"
                         }
                     }
                 ],
@@ -243,7 +243,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.CreateOrderPayload"
+                            "$ref": "#/definitions/handlers.CreateOrderPayload"
                         }
                     }
                 ],
@@ -421,7 +421,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest"
+                            "$ref": "#/definitions/usecase.CompleteOrderRequest"
                         }
                     }
                 ],
@@ -508,7 +508,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.SendMessagePayload"
+                            "$ref": "#/definitions/handlers.SendMessagePayload"
                         }
                     }
                 ],
@@ -569,7 +569,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.ReviewRequestPayload"
+                            "$ref": "#/definitions/handlers.ReviewRequestPayload"
                         }
                     }
                 ],
@@ -629,7 +629,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.RegisterTechnicianRequest"
+                            "$ref": "#/definitions/handlers.RegisterTechnicianRequest"
                         }
                     }
                 ],
@@ -693,7 +693,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.UpdateAvailabilityPayload"
+                            "$ref": "#/definitions/handlers.UpdateAvailabilityPayload"
                         }
                     }
                 ],
@@ -844,7 +844,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.RequestOTPPayload"
+                            "$ref": "#/definitions/handlers.RequestOTPPayload"
                         }
                     }
                 ],
@@ -879,7 +879,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_handlers.VerifyOTPPayload"
+                            "$ref": "#/definitions/handlers.VerifyOTPPayload"
                         }
                     }
                 ],
@@ -957,7 +957,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_noireveil_ecoserve-backend_internal_usecase.UpdateProfileRequest"
+                            "$ref": "#/definitions/usecase.UpdateProfileRequest"
                         }
                     }
                 ],
@@ -1059,46 +1059,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_noireveil_ecoserve-backend_internal_usecase.CompleteOrderRequest": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "device_weight": {
-                    "type": "number"
-                },
-                "distance_km": {
-                    "type": "number"
-                },
-                "latitude": {
-                    "type": "number"
-                },
-                "longitude": {
-                    "type": "number"
-                },
-                "photo_url": {
-                    "type": "string"
-                },
-                "service_fee": {
-                    "type": "number"
-                }
-            }
-        },
-        "github_com_noireveil_ecoserve-backend_internal_usecase.UpdateProfileRequest": {
-            "type": "object",
-            "properties": {
-                "full_name": {
-                    "type": "string",
-                    "example": "EcoServe Tester"
-                },
-                "profile_picture_url": {
-                    "type": "string",
-                    "example": "https://storage.com/photo.jpg"
-                }
-            }
-        },
-        "internal_delivery_http_handlers.CreateDevicePayload": {
+        "handlers.CreateDevicePayload": {
             "type": "object",
             "properties": {
                 "brand_name": {
@@ -1115,7 +1076,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_delivery_http_handlers.CreateOrderPayload": {
+        "handlers.CreateOrderPayload": {
             "type": "object",
             "properties": {
                 "customer_latitude": {
@@ -1142,7 +1103,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_delivery_http_handlers.RegisterTechnicianRequest": {
+        "handlers.RegisterTechnicianRequest": {
             "type": "object",
             "properties": {
                 "experience_years": {
@@ -1163,7 +1124,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_delivery_http_handlers.RequestOTPPayload": {
+        "handlers.RequestOTPPayload": {
             "type": "object",
             "properties": {
                 "email": {
@@ -1176,7 +1137,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_delivery_http_handlers.ReviewRequestPayload": {
+        "handlers.ReviewRequestPayload": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -1189,7 +1150,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_delivery_http_handlers.SendMessagePayload": {
+        "handlers.SendMessagePayload": {
             "type": "object",
             "properties": {
                 "content": {
@@ -1198,7 +1159,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_delivery_http_handlers.TriagePayload": {
+        "handlers.TriagePayload": {
             "type": "object",
             "properties": {
                 "latitude": {
@@ -1219,7 +1180,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_delivery_http_handlers.UpdateAvailabilityPayload": {
+        "handlers.UpdateAvailabilityPayload": {
             "type": "object",
             "properties": {
                 "is_available": {
@@ -1227,7 +1188,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_delivery_http_handlers.VerifyOTPPayload": {
+        "handlers.VerifyOTPPayload": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1237,6 +1198,45 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "example": "ecosecurity@ecoserve.com"
+                }
+            }
+        },
+        "usecase.CompleteOrderRequest": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "device_weight": {
+                    "type": "number"
+                },
+                "distance_km": {
+                    "type": "number"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "photo_url": {
+                    "type": "string"
+                },
+                "service_fee": {
+                    "type": "number"
+                }
+            }
+        },
+        "usecase.UpdateProfileRequest": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string",
+                    "example": "EcoServe Tester"
+                },
+                "profile_picture_url": {
+                    "type": "string",
+                    "example": "https://storage.com/photo.jpg"
                 }
             }
         }
